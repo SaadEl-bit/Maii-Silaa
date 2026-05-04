@@ -1,0 +1,1 @@
+//Call Open-Metheo API and return the weather data

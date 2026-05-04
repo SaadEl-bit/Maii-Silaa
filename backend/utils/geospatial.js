@@ -1,0 +1,1 @@
+//Calculate distance with simple math

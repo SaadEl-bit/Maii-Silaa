@@ -1,0 +1,1 @@
+//Controle the supabase connection and authentication

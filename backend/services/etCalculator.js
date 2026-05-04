@@ -1,0 +1,1 @@
+//get weather + crop + stage -> decision to irrigate + waterMm + WaterHours

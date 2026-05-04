@@ -1,0 +1,1 @@
+//Detection of diseases + location + weather -> alert nearby farmers 15km

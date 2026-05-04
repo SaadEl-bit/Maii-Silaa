@@ -1,0 +1,1 @@
+//Get Data and decision and translate them to dariga

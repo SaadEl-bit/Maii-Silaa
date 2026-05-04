@@ -1,0 +1,1 @@
+//Runs before routes -> Detects Language (Darija, Arabic , French) from header and attaches to req.lang

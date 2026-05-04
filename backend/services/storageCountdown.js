@@ -1,0 +1,1 @@
+//Crop + storageType + weather -> daysRemaining + adjustedDaysRemaining + status

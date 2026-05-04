@@ -1,0 +1,1 @@
+//get the recommendation, log irrigation for MAii
