@@ -1,0 +1,1 @@
+//Input informations (phone number / cordinates ... ) validation

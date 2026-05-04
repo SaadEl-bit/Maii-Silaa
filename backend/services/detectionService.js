@@ -1,0 +1,1 @@
+//Get Crop image + sorageType + Weather -> diagnosis + action + product + priceDh

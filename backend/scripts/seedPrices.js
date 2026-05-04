@@ -1,0 +1,1 @@
+//Fills price_history with 3 months mock data

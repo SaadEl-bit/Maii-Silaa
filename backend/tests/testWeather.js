@@ -1,0 +1,1 @@
+//Test data received from Open-Meteo and its format

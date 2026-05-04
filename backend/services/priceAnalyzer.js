@@ -1,0 +1,1 @@
+// Crop + region + daysRemaining -> trend + peakDate + sellWindow

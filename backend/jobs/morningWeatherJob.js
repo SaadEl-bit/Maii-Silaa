@@ -1,0 +1,1 @@
+//Fetches weather for all farms, precalculates recommendations
