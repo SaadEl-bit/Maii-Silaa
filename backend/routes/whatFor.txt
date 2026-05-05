@@ -1,1 +1,1 @@
-API route handlers
+HTTP route handlers: map URLs to controllers/services (REST surface for web and mobile).

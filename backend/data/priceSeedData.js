@@ -1,1 +1,1 @@
-//Here we can put generated ONCA (from claude) just for testing if we cannot fetch ONCA data directly
+// Mock / synthetic rows for price_history when live feeds are unavailable (multi-source aware).

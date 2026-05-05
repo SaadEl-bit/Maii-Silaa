@@ -1,1 +1,1 @@
-//Runs before routes -> Detects Language (Darija, Arabic , French) from header and attaches to req.lang
+// Before routes: resolve locale (ar default, fr, en) from Accept-Language and set req.lang.

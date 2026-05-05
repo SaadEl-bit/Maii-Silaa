@@ -1,1 +1,1 @@
-//Input informations (phone number / cordinates ... ) validation
+// Request validation: phone, coordinates, IDs, enum fields.

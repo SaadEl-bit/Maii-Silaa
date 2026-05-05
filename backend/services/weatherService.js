@@ -1,1 +1,1 @@
-//Call Open-Metheo API and return the weather data
+// Open-Meteo client: fetch and normalize weather for ET and alerts.

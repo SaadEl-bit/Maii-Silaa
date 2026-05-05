@@ -1,1 +1,1 @@
-//Scrapes and reserch scores in database ONCA price and bulletins
+// Cron: ingest multi-source price data (ONCA, WFP VAM, FAOSTAT, RATIN, Afrique Verte, etc.) into price_history.

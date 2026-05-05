@@ -1,1 +1,1 @@
-//Get Data and decision and translate them to dariga
+// LLM output shaping: MSA-first copy for the UI, optional fr/en; no dialect in prompts.

@@ -1,1 +1,1 @@
-//Get Crop image + sorageType + Weather -> diagnosis + action + product + priceDh
+// Image + storage + weather -> diagnosis, action text, product hint, local price.

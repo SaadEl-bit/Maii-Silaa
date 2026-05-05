@@ -1,1 +1,1 @@
-//Proxy Open-Metheo
+// Weather proxy (Open-Meteo; no API key).

@@ -1,1 +1,1 @@
-//Farmer phone OTP, distributor email login and verify
+// Auth: farmer phone OTP, distributor email/password, session verification.

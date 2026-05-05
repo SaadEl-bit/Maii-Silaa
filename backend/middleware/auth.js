@@ -1,1 +1,1 @@
-//It runs before protected routes -> Verifies JWT, attaches req.user
+// Before protected routes: verify JWT and attach req.user.

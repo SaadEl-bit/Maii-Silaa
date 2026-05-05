@@ -1,1 +1,1 @@
-//get the recommendation, log irrigation for MAii
+// MAÏ: irrigation recommendations and logging (explainable ET-based logic upstream).

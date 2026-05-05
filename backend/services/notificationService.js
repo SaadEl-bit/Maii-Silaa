@@ -1,1 +1,1 @@
-//Phone number + message -> Send WhatsApp/SMS with Twilio API
+// Twilio: WhatsApp and SMS; message body from i18n / template layer.

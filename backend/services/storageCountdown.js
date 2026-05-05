@@ -1,1 +1,1 @@
-//Crop + storageType + weather -> daysRemaining + adjustedDaysRemaining + status
+// Shelf-life model: crop, storage, weather -> remaining days and status.

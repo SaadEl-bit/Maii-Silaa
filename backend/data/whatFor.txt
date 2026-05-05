@@ -1,1 +1,1 @@
-Static Data tables from real ressource or just bluffing for testing
+Static reference tables: Kc curves, shelf-life bands, seed price rows for demos.

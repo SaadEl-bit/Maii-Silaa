@@ -1,1 +1,1 @@
-//Runs after routes -> Catches unhandled errors,formats response
+// After routes: central error handler and API error shape.
