@@ -1,1 +1,1 @@
-//Receive photos of crops and return diagnosis
+// Crop photo upload and diagnosis (ethical, explainable outputs for the UI layer).

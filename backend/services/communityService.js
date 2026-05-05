@@ -1,1 +1,1 @@
-//Detection of diseases + location + weather -> alert nearby farmers 15km
+// Confirmed detection + geospatial query -> ~15 km farmer alerts.

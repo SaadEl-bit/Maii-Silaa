@@ -1,1 +1,1 @@
-//Construct Claude or Google: Gemma 4 31B (free) prompt
+// Build LLM prompts: African agronomy context, ethical explainability, MSA-first user-visible tone (UI renders Arabic).

@@ -1,1 +1,1 @@
-//Alerts nearby farmers for diseases
+// Community alerts and radius broadcasts after confirmed detections.

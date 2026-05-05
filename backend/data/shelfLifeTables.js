@@ -1,1 +1,1 @@
-//Storage days for the 5 types of crops in 3 different types of storage
+// Reference shelf-life days by crop and storage class for SILA countdown.

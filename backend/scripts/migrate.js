@@ -1,1 +1,1 @@
-//Applies schema changes (links and relations between tables)
+// Apply SQL migrations / schema sync (CI or local).

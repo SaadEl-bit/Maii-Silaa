@@ -1,1 +1,1 @@
-//Test data received from Open-Meteo and its format
+// Integration check: Open-Meteo response shape and parsing.

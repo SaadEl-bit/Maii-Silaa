@@ -1,1 +1,1 @@
-//Fills price_history with 3 months mock data
+// Seed price_history with mock multi-country rows for SILA demos.

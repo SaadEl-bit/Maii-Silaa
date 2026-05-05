@@ -1,1 +1,1 @@
-Configuration files for database
+Environment, Supabase client, SQL schema, and app constants (identifiers and docs in English; UI copy is not stored here).

@@ -1,1 +1,1 @@
-On/Off utilities, add users for demo , and add mock data for testing
+One-off CLI tasks: migrations, seed users, seed prices.

@@ -1,1 +1,1 @@
-Test API request work perfectly before launching the project
+Runnable smoke tests for external APIs (`npm run test:claude`, `npm run test:openrouter`). Requires `.env` from `.env.example`.

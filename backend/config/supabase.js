@@ -1,1 +1,1 @@
-//Controle the supabase connection and authentication
+// Supabase client (Auth, Postgres, Storage, Realtime).

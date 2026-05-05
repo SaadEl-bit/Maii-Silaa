@@ -1,1 +1,1 @@
-//Control the database connection and authentication
+// Database pool / connection helpers (credentials from env).

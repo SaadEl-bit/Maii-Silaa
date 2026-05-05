@@ -1,1 +1,1 @@
-//list the products of farmers and offer negotiation
+// Marketplace listings and distributor offers / negotiation.

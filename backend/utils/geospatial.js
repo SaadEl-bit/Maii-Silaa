@@ -1,1 +1,1 @@
-//Calculate distance with simple math
+// Haversine / distance helpers for radius alerts and marketplace proximity.

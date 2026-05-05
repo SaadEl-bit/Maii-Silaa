@@ -1,2 +1,1 @@
-//Control the routes for the backend
-//Aggregate all the routes for the backend attaches to Express app
+// Route aggregator: mount domain routers on the Express app.

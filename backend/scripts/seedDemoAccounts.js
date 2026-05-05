@@ -1,1 +1,1 @@
-//Creates small database for testing - exp : 3 farmers + 2 distributors for demo
+// Seed demo users and farms for presentations (pilot country MA by default).

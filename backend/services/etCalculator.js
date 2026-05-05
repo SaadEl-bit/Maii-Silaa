@@ -1,1 +1,1 @@
-//get weather + crop + stage -> decision to irrigate + waterMm + WaterHours
+// FAO-56 style ET: weather + crop + growth stage -> irrigate decision, mm, hours.

@@ -1,1 +1,1 @@
-Business logic (The brain of intelligence and math)
+Domain logic: weather, ET, AI wording layer, pricing analytics, notifications — pan-African scope; Morocco is pilot.

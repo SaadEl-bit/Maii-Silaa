@@ -1,1 +1,1 @@
-//Display formatting (fomatDate / formatCurrency)
+// Date, number, and currency formatting for API responses (locale from req).

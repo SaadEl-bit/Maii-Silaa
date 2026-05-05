@@ -1,1 +1,1 @@
-//Express app setup, middleware mounting, route mounting, server start
+// Express entry: mount middleware and routes, start HTTP server (UI strings come from frontend i18n).
