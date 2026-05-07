@@ -1,0 +1,123 @@
+# 🌍 FILAHA — PROJECT CONTEXT PROMPT
+Paste this at the top of every AI chat session before requesting code changes.
+
+---
+
+## 1. EVENT & THEME
+- **Hackathon:** MIATHON'03
+- **Theme:** "Thinking AI from Africa: ethics, power, and shared futures"
+- **Team:** 4 Moroccan students
+- **Sponsor alignment:** OCP (agriculture/water focus)
+
+## 2. PROJECT IDENTITY
+- **Name:** Filaha (فلاحة) — African Agricultural Intelligence
+- **Concept:** Dual-sided ethical AI platform for African smallholders
+  - **MAÏ** → Irrigation intelligence (when/how much to water)
+  - **SILA** → Market intelligence (when to sell, at what price, direct buyer matching)
+- **Tagline:** "الذكاء الزراعي الأفريقي" / "L'intelligence agricole africaine"
+- **Scope:** Pan-African (Morocco = pilot/first lead)
+
+## 3. TARGET USERS
+| Side | User | Auth Method |
+|------|------|-------------|
+| B2C | African smallholder farmers | Phone number + OTP |
+| B2B | Produce distributors/buyers | Email + password |
+
+## 4. CRITICAL LANGUAGE RULE (DO NOT BREAK)
+- **UI text visible to users:** Modern Standard Arabic (MSA / العربية الفصحى) by DEFAULT. French second. English third.
+- **Code comments, variable names, function names, file names, folder names, SQL columns/tables, internal docs:** ENGLISH ONLY.
+- **AI chat responses to farmers:** Formal Arabic (الفصحى), never Darija/dialect.
+- **Developer-facing text:** English only.
+- **i18n keys:** English snake_case (e.g., "irrigation.water_amount"), values in target language.
+- **RTL:** Arabic UI must render right-to-left.
+
+## 5. ETHICAL AI PILLARS (Theme Alignment)
+Every AI feature must demonstrate:
+1. **Explainability** — Farmer sees WHY the recommendation was given (factors, confidence, data sources)
+2. **Transparency** — Farmer sees exactly which APIs/data were used
+3. **Consent** — `data_sharing_consent` boolean; audit log of all AI decisions
+4. **Data Ownership** — Farmers own their data; open-source crop models post-hackathon
+5. **Shared Futures** — Cross-border community alerts (e.g., "Farmers in Tunisia face same pest")
+
+## 6. TECH STACK
+| Layer | Tech |
+|-------|------|
+| Frontend | React 18 + Vite + Tailwind CSS + shadcn/ui |
+| State | Zustand |
+| HTTP | TanStack Query |
+| Maps | Leaflet.js |
+| Charts | Recharts |
+| Backend | Node.js + Express |
+| Database | Supabase (PostgreSQL + Auth + Realtime + Storage) |
+| Weather | Open-Meteo API (free, no key) |
+| AI/LLM | Anthropic Claude 3.5 Haiku (primary) / OpenRouter Gemma 4 (backup) |
+| Vision | OpenRouter Vision API (fallback) |
+| Notifications | Twilio WhatsApp + SMS |
+| i18n | i18next (ar / fr / en) |
+| Deployment | Railway (backend) + Vercel (frontend) |
+
+## 7. MULTI-COUNTRY DATA ARCHITECTURE
+Database is country-aware. Key tables:
+- `countries` — ISO code, name in 3 languages, currency, data sources, active flag
+- `regions` — climate zone, centroid, bounding box, linked to country
+- `farms` — linked to country + region
+- `price_history` — linked to country + data source (onca, wfp_vam, ratin, etc.)
+- `crop_coefficients` — country-specific Kc values (FAO-56 based)
+- `ai_explanations` — explainability log for every recommendation
+- `data_audit_log` — ethics/transparency logging
+
+### Active Countries (Phase 1)
+- **MA** (Morocco) — ONCA + WFP VAM + FAOSTAT ← PILOT, ACTIVE
+- Others seeded but `is_active = false`: DZ, TN, EG, SN, ML, NG, GH, BF, KE, TZ, UG, ET
+
+### Price Data Sources by Region
+| Region | Primary | Fallback |
+|--------|---------|----------|
+| Morocco | ONCA | WFP VAM, FAOSTAT |
+| North Africa | WFP VAM | FAOSTAT |
+| East Africa | RATIN | WFP VAM, Farmgain |
+| West Africa | Afrique Verte | WFP VAM, FEWS NET |
+| Pan-Africa | FAOSTAT | — |
+
+## 8. AI RESPONSE FORMAT (STRICT)
+Every LLM call must return JSON with:
+```json
+{
+  "recommendation": "string (MSA)",
+  "explanation": "string (MSA — why this advice)",
+  "confidence": 0.0-1.0,
+  "factors": [{"factor": "temp", "weight": 0.4, "value": 32}],
+  "action_items": ["خطوة 1", "خطوة 2"],
+  "data_sources_used": ["open_meteo", "fao_56"]
+}
+```
+
+---
+
+## 9. PROJECT STATUS LOG
+> **AGENTS: You MUST add a new entry here when you finish your session.**
+> Format: ### [DATE] — [SHORT TITLE], then bullet list with Phase, What was done, What works now, Next step.
+> This is how the next agent knows where you stopped. See .cursorrules for full instructions.
+
+---
+
+### 2026-05-05 — Project Scaffolding & Phase 0 Complete
+- **Phase:** 0 (Setup) — COMPLETE
+- **What was done:**
+  - Created full backend folder structure: config/, data/, utils/, services/, middleware/, routes/, scripts/, jobs/, tests/
+  - All files have stub comments describing their purpose
+  - Every folder has a detailed whatFor.txt
+  - schema.sql written (8 tables, enums, indexes)
+  - constants.js coded (default locale, pilot country)
+  - .env.example created with all needed keys
+  - package.json with scripts for test:claude, test:openrouter, test:llm
+  - Installed: @anthropic-ai/sdk, @openrouter/sdk, dotenv
+  - testClaude.js and testOpenRouter.js written and passing ✅
+  - WALKTHROUGH.md created with full 9-phase build guide
+  - .cursorrules expanded with 3-step agent workflow
+  - PROJECT_CONTEXT.txt updated with this status log section
+- **What works now:**
+  - `npm run test:claude` → Claude API responds ✅
+  - `npm run test:openrouter` → OpenRouter API responds ✅
+  - `node -e "console.log(require('./config/constants'))"` → prints constants ✅
+- **Next step:** Phase 1 — Code config/supabase.js and config/database.js (need `npm install @supabase/supabase-js` first), then run schema.sql in Supabase SQL Editor

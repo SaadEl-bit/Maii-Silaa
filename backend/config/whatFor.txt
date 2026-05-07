@@ -1,1 +1,11 @@
-Environment, Supabase client, SQL schema, and app constants (identifiers and docs in English; UI copy is not stored here).
+ROLE: Foundation layer — everything else imports from here.
+
+FILES:
+- supabase.js    → Creates and exports the Supabase client (Auth, Postgres, Storage, Realtime). Uses SUPABASE_URL and SUPABASE_ANON_KEY from .env.
+- database.js    → Optional direct PostgreSQL connection pool for scripts/migrate.js. Uses DATABASE_URL from .env.
+- constants.js   → App-wide constants: default locale (ar), pilot country (MA), supported locales. No secrets here.
+- schema.sql     → Full PostgreSQL schema: 8 tables (users, farms, irrigation_logs, price_history, listings, offers, detections, community_alerts), enums, indexes. Run this in Supabase SQL Editor or via scripts/migrate.js.
+
+BUILD ORDER: Code this folder FIRST (Phase 1). Every service, route, and script depends on it.
+TEST: node -e "console.log(require('./config/constants'))"
+TEST: node -e "console.log(typeof require('./config/supabase'))"
