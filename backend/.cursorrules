@@ -1,0 +1,51 @@
+# ====================================================================
+# FILAHA BACKEND — AGENT RULES
+# ====================================================================
+
+# ------------------------------------------------------------------
+# STEP 1: READ BEFORE YOU CODE (MANDATORY)
+# ------------------------------------------------------------------
+# Before making ANY changes, read these two files IN ORDER:
+#
+# 1. PROJECT_CONTEXT.txt  → Project description, tech stack, ethical
+#    pillars, language rules, DB architecture, AI response format.
+#    ALSO check "SECTION 9: PROJECT STATUS LOG" at the bottom —
+#    it tells you where the project currently stands and what was
+#    last changed.
+#
+# 2. WALKTHROUGH.md       → Full system workflow, folder-by-folder
+#    build order (Phase 0-9), data flows for MAÏ and SILA,
+#    how to run/test each script, and the request lifecycle.
+#    Use this to understand which phase you are in and what
+#    comes next.
+#
+# Together these files give you the full picture. Do NOT start
+# coding until you understand the current project state.
+
+# ------------------------------------------------------------------
+# STEP 2: CODING RULES
+# ------------------------------------------------------------------
+# - Default UI language: Arabic (MSA / العربية الفصحى). No Darija.
+# - Code language (variables, comments, file names): English ONLY.
+# - Every AI feature must include explainability logging
+#   (confidence, factors, data_sources_used — see AI response format
+#   in PROJECT_CONTEXT.txt section 8).
+# - Every file contains a top comment explaining what the file does.
+# - Every folder has a "whatFor.txt" explaining its role in the project.
+# - Follow the build order in WALKTHROUGH.md — do not skip phases.
+
+# ------------------------------------------------------------------
+# STEP 3: UPDATE PROJECT STATUS (MANDATORY — WHEN DONE)
+# ------------------------------------------------------------------
+# When you finish your session, you MUST update "SECTION 9: PROJECT
+# STATUS LOG" at the bottom of PROJECT_CONTEXT.txt. Add a new entry
+# with:
+#
+#   ### [DATE] — [SHORT TITLE]
+#   - **Phase:** Which phase (0-9) the project is at now
+#   - **What was done:** Bullet list of files created/modified
+#   - **What works now:** What can be tested/run after your changes
+#   - **Next step:** What the next agent should work on
+#
+# This is how the next agent (or human) knows exactly where you
+# stopped and what to do next. NEVER skip this step.
