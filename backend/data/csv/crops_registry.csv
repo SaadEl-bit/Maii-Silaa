@@ -1,0 +1,45 @@
+﻿base_id;price_aliases;storage_id;irrigation_default;category;source;notes
+wheat;wheat,Wheat (Spring),Wheat (Winter);Wheat;0.3;Cereals;FAO56;"MA primary grain; fall/winter cycle"
+barley;barley,Barley;Barley;0.3;Cereals;FAO56;"MA traditional; marginal lands"
+maize;corn,maize,maize_flour,Maize (Field/Grain),Maize (Sweet);Maize (White);0.3;Cereals;FAO56;"MA summer staple; irrigation zones"
+potato;potato,irish_potato,Potato;Potato;0.5;Roots and Tubers;FAO56;"MA year-round; winter cycle dominant"
+tomato;tomato,Tomato;Tomato;0.6;Solanaceae;FAO56;"MA export crop; greenhouse dominant"
+onion;onion,Onion (dry),Onion (green),Onion (seed);Onion (dry bulbs);0.7;Small Vegetables;FAO56;"MA major vegetable; winter crop"
+carrot;carrot,Carrots;Carrots;0.7;Small Vegetables;FAO56;MA winter vegetable
+olive_oil;olive_oil,Olives (40-60% canopy);Olives;0.65;Fruit Trees;FAO56;"MA specialty; oil extraction"
+orange;citrus_orange,Citrus (70% canopy, no cover),Citrus (Orange);Citrus (Orange);0.7;Fruit Trees;FAO56;"MA citrus; Berkane region"
+bean;beans,beans_rosecoco,beans_njahi,Beans (dry),Beans (green);Beans (haricot/horse);0.4;Legumes;FAO56;"MA food legume; high altitude"
+lentil;lentil,Lentil;Lentils;0.4;Legumes;FAO56;"MA winter pulse; rainfed"
+chickpea;chick pea,Chick pea,Grabanzo;Chickpeas;0.4;Legumes;FAO56;MA spring pulse
+garlic;garlic,Garlic;Garlic;0.7;Small Vegetables;FAO56;"MA export; Essaouira region"
+cabbage;cabbage,Cabbage;Cabbage;0.7;Small Vegetables;FAO56;MA winter vegetable
+lettuce;lettuce,Lettuce;Lettuce;0.7;Small Vegetables;FAO56;"MA greenhouse; year-round"
+pepper;sweet_peppers,Sweet Peppers (bell),Egg Plant;Sweet Peppers;0.6;Solanaceae;FAO56;"MA export; greenhouse"
+cucumber;cucumber,Cucumber (Fresh Market),Cucumber (Machine Harvest);Cucumber;0.6;Cucurbitaceae;FAO56;"MA greenhouse; winter cycle"
+watermelon;watermelon,Watermelon;Watermelon;0.4;Cucurbitaceae;FAO56;MA summer crop
+melon;melon,Cantaloupe,Sweet Melons;Cantaloupe;0.5;Cucurbitaceae;FAO56;"MA export; souss region"
+pumpkin;pumpkin,Pumpkin / Winter Squash;Pumpkin;0.5;Cucurbitaceae;FAO56;MA traditional
+zucchini;zucchini,Squash / Zucchini;Zucchini;0.5;Cucurbitaceae;FAO56;MA household gardens
+cauliflower;cauliflower,Cauliflower;Cauliflower;0.7;Small Vegetables;FAO56;MA winter
+broccoli;broccoli,Broccoli;Broccoli;0.7;Small Vegetables;FAO56;MA emerging export
+spinach;spinach,Spinach;Spinach;0.7;Small Vegetables;FAO56;MA winter leafy
+radish;radish,Radish;Radish;0.7;Small Vegetables;FAO56;MA quick cycle
+beet;beet,Beets (table);Beets;0.5;Roots and Tubers;FAO56;MA winter root
+turnip;turnip,Turnip / Rutabaga;Turnip;0.5;Roots and Tubers;FAO56;MA traditional
+sweet_potato;sweet_potato,Sweet Potato;Sweet Potato;0.5;Roots and Tubers;FAO56;MA alternative starch
+eggplant;eggplant,Egg Plant;Eggplant;0.6;Solanaceae;FAO56;MA summer veg
+rice;rice,Rice,Rice (Paddy),Rice (Milled);Rice (Paddy);1.05;Cereals;FAO56;"West Africa staple; irrigated"
+millet;millet,Millet;Millet;0.3;Cereals;FAO56;"Sahel staple; rainfed"
+sorghum;sorghum,Sorghum (grain),Sorghum (sweet);Sorghum;0.3;Cereals;FAO56;"Sudan belt; drought-tolerant"
+cassava;cassava,Cassava (year 1),Cassava (year 2);Cassava (fresh roots);0.3;Roots and Tubers;FAO56;"Central Africa staple; perishable"
+yam;yam,Yam;Yam;0.3;Roots and Tubers;FAO56;"West Africa; traditional storage"
+cowpea;cowpea,Green Gram / Cowpeas;Cowpeas;0.4;Legumes;FAO56;"West Africa protein; nitrogen-fixing"
+groundnut;groundnut,Groundnut (Peanut),Groundnuts (shelled),Groundnuts (unshelled);Groundnuts (unshelled);0.4;Legumes;FAO56;West Africa oilseed
+soybean;soybean,Soybeans;Soybeans;0.4;Legumes;FAO56;"Southern Africa; emerging"
+sunflower;sunflower,Sunflower;Sunflower (seed);0.35;Oil Crops;FAO56;Southern Africa oilseed
+sugarcane;sugarcane,Sugarcane;Sugarcane (fresh);0.4;Sugar Cane;FAO56;Indian Ocean islands
+banana;banana,Banana (1st year),Banana (2nd year);Banana;0.5;Tropical Fruits;FAO56;Central/West Africa staple fruit
+mango;mango,Mango;Mango;0.5;Tropical Fruits;FAO56;West Africa export
+papaya;papaya,Papaya;Papaya;0.5;Tropical Fruits;FAO56;Tropical
+pineapple;pineapple,Pineapple (bare soil),Pineapple (with grass cover);Pineapple;0.5;Tropical Fruits;FAO56;West Africa export
+avocado;avocado,Avocado (no ground cover);Avocado;0.6;Fruit Trees;FAO56;Eastern/Southern Africa export
