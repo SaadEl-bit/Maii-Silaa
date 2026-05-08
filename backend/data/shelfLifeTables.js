@@ -599,6 +599,180 @@ const FAO_GRAIN_STORAGE_DATABASE = [
     duration_notes: "Very perishable. 3-7 days after cutting. Sucrose converts to invert sugars rapidly.",
     quality_loss_indicators: "Sucrose loss; inversion; microbial deterioration; drying; mechanical damage",
     notes: "FAO: Process within 24-48 hours of harvest for maximum sugar recovery."
+  },
+
+  // ============================================================
+  // MISSING STORAGE ENTRIES: FAO GLOBAL ESTIMATES
+  // Date: 2026-05-08
+  // ============================================================
+  {
+    name: "Tomato",
+    category: "Solanaceae",
+    storage_temp_c: 10,
+    storage_temp_range_c: "8-12",
+    relative_humidity_pct: 90,
+    rh_range_pct: "85-95",
+    max_moisture_pct: 90.0,
+    typical_duration_months: 0.5,
+    duration_notes: "10-14 days at optimal conditions. Very perishable.",
+    quality_loss_indicators: "Water loss; chilling injury; rot; softening",
+    notes: "FAO: Store at 10-12°C. Chilling injury below 8°C."
+  },
+  {
+    name: "Olive Oil",
+    category: "Oil Crops",
+    storage_temp_c: 15,
+    storage_temp_range_c: "10-20",
+    relative_humidity_pct: 50,
+    rh_range_pct: "40-60",
+    max_moisture_pct: 0.5,
+    typical_duration_months: 18,
+    duration_notes: "Extra virgin olive oil: 18-24 months. Light degrades quality.",
+    quality_loss_indicators: "Oxidation; rancidity; flavor deterioration",
+    notes: "FAO: Store in dark glass. Keep sealed. Cool temperature extends life."
+  },
+  {
+    name: "Chickpeas",
+    category: "Legumes",
+    storage_temp_c: 15,
+    storage_temp_range_c: "10-20",
+    relative_humidity_pct: 65,
+    rh_range_pct: "50-70",
+    max_moisture_pct: 14.0,
+    typical_duration_months: 12,
+    duration_notes: "Similar to lentils. Store in cool dry place.",
+    quality_loss_indicators: "Bruchid damage; mould; moisture absorption",
+    notes: "FAO: Store like other pulses. Low humidity critical."
+  },
+  {
+    name: "Sweet Peppers",
+    category: "Solanaceae",
+    storage_temp_c: 10,
+    storage_temp_range_c: "8-12",
+    relative_humidity_pct: 90,
+    rh_range_pct: "85-95",
+    max_moisture_pct: 90.0,
+    typical_duration_months: 0.75,
+    duration_notes: "2-4 weeks at 10°C. Ethylene sensitive.",
+    quality_loss_indicators: "Wrinkling; softening; decay; chilling injury",
+    notes: "FAO: Store at 10°C. Avoid temperatures below 8°C."
+  },
+  {
+    name: "Cucumber",
+    category: "Cucurbitaceae",
+    storage_temp_c: 10,
+    storage_temp_range_c: "8-12",
+    relative_humidity_pct: 90,
+    rh_range_pct: "85-95",
+    max_moisture_pct: 90.0,
+    typical_duration_months: 0.5,
+    duration_notes: "10-14 days. Sensitive to chilling injury.",
+    quality_loss_indicators: "Water loss; pitting; decay; yellowing",
+    notes: "FAO: Store at 10-12°C. Below 10°C causes chilling injury."
+  },
+  {
+    name: "Watermelon",
+    category: "Cucurbitaceae",
+    storage_temp_c: 12,
+    storage_temp_range_c: "10-15",
+    relative_humidity_pct: 85,
+    rh_range_pct: "80-90",
+    max_moisture_pct: 85.0,
+    typical_duration_months: 0.75,
+    duration_notes: "2-3 weeks. Whole melons store better than cut.",
+    quality_loss_indicators: "Internal flesh breakdown; rind softening; decay",
+    notes: "FAO: Store at 12-15°C. Sensitive to chilling below 10°C."
+  },
+  {
+    name: "Cantaloupe",
+    category: "Cucurbitaceae",
+    storage_temp_c: 5,
+    storage_temp_range_c: "3-8",
+    relative_humidity_pct: 90,
+    rh_range_pct: "85-95",
+    max_moisture_pct: 85.0,
+    typical_duration_months: 0.5,
+    duration_notes: "10-14 days. Ethylene accelerates ripening.",
+    quality_loss_indicators: " softening; surface burn; decay; off-flavors",
+    notes: "FAO: Store at 3-7°C. Ethylene sensitive."
+  },
+  {
+    name: "Pumpkin",
+    category: "Cucurbitaceae",
+    storage_temp_c: 12,
+    storage_temp_range_c: "10-15",
+    relative_humidity_pct: 70,
+    rh_range_pct: "60-80",
+    max_moisture_pct: 80.0,
+    typical_duration_months: 2,
+    duration_notes: "2-3 months. Cure at 25°C for 10 days before storage.",
+    quality_loss_indicators: "Softening; decay; pitting",
+    notes: "FAO: Store at 10-15°C. Low RH extends storage life."
+  },
+  {
+    name: "Zucchini",
+    category: "Cucurbitaceae",
+    storage_temp_c: 10,
+    storage_temp_range_c: "8-12",
+    relative_humidity_pct: 90,
+    rh_range_pct: "85-95",
+    max_moisture_pct: 90.0,
+    typical_duration_months: 0.25,
+    duration_notes: "5-7 days. Very perishable.",
+    quality_loss_indicators: "Softening; decay; water loss",
+    notes: "FAO: Store at 10°C. High RH critical."
+  },
+  {
+    name: "Beets",
+    category: "Roots and Tubers",
+    storage_temp_c: 0,
+    storage_temp_range_c: "0-5",
+    relative_humidity_pct: 95,
+    rh_range_pct: "90-100",
+    max_moisture_pct: 90.0,
+    typical_duration_months: 4,
+    duration_notes: "3-5 months. Remove tops before storage.",
+    quality_loss_indicators: "Wilting; woodiness; root growth; decay",
+    notes: "FAO: Store at 0°C with high RH. Topped roots store longer."
+  },
+  {
+    name: "Turnip",
+    category: "Roots and Tubers",
+    storage_temp_c: 0,
+    storage_temp_range_c: "0-5",
+    relative_humidity_pct: 95,
+    rh_range_pct: "90-100",
+    max_moisture_pct: 90.0,
+    typical_duration_months: 3,
+    duration_notes: "2-4 months. Remove tops before storage.",
+    quality_loss_indicators: "Woodiness; pithiness; sprouting; decay",
+    notes: "FAO: Store at 0°C with high RH. Topped roots store longer."
+  },
+  {
+    name: "Eggplant",
+    category: "Solanaceae",
+    storage_temp_c: 10,
+    storage_temp_range_c: "8-12",
+    relative_humidity_pct: 90,
+    rh_range_pct: "85-95",
+    max_moisture_pct: 90.0,
+    typical_duration_months: 0.5,
+    duration_notes: "7-10 days. Sensitive to chilling injury.",
+    quality_loss_indicators: "Pitting; browning; decay; seed darkening",
+    notes: "FAO: Store at 10-12°C. Below 10°C causes chilling injury."
+  },
+  {
+    name: "Avocado",
+    category: "Fruit Trees",
+    storage_temp_c: 5,
+    storage_temp_range_c: "3-8",
+    relative_humidity_pct: 85,
+    rh_range_pct: "80-90",
+    max_moisture_pct: 85.0,
+    typical_duration_months: 0.5,
+    duration_notes: "1-2 weeks ripe. Store unripe at 15°C then ripen at room temp.",
+    quality_loss_indicators: "Internal browning; chilling injury; decay",
+    notes: "FAO: Store at 5-7°C. Ethylene producer. Ripen at 15-20°C."
   }
 ];
 

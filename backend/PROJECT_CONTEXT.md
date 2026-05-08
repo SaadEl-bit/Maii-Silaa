@@ -1,0 +1,349 @@
+# 🌍 FILAHA — COMPLETE PROJECT MASTER DOCUMENT
+# Last Updated: 2026-05-08
+# Paste this at the top of every Cursor / AntiGravity / Claude Code session
+
+---
+
+## 1. EVENT & IDENTITY
+
+| Field | Value |
+|-------|-------|
+| **Hackathon** | MIATHON'03 |
+| **Theme** | "Thinking AI from Africa: ethics, power, and shared futures" |
+| **Sponsor Alignment** | OCP (Office Chérifien des Phosphates) — agriculture & water |
+| **Team** | 4 Moroccan students, Darija native speakers |
+| **Your Role** | Backend / AI / Data Lead |
+| **Project Name** | Filaha (فلاحة) — African Agricultural Intelligence |
+| **Tagline** | "الذكاء الزراعي الأفريقي" / "L'intelligence agricole africaine" |
+| **Scope** | Pan-African platform. Morocco = pilot / first lead. |
+| **Timeline** | ~10 days prep + 72h hackathon |
+
+---
+
+## 2. CONCEPT: DUAL-SIDED PLATFORM
+
+### MAÏ — Irrigation Intelligence
+- When and how much to water
+- Weather-based ET calculations (FAO-56 Penman-Monteith)
+- Water savings tracking & historical logs
+
+### SILA — Market Intelligence
+- When to sell, at what price
+- Direct buyer-distributor matching
+- Negotiation system (pending → accepted/declined/countered)
+
+---
+
+## 3. TARGET USERS
+
+| Side | User Type | Auth Method | Language |
+|------|-----------|-------------|----------|
+| B2C | African smallholder farmers | Phone number + OTP | Arabic (MSA) default |
+| B2B | Produce distributors / buyers | Email + password | French / English |
+
+---
+
+## 4. CRITICAL LANGUAGE RULE (NON-NEGOTIABLE)
+
+| Context | Language |
+|---------|----------|
+| **UI text visible to users** (buttons, labels, toasts, errors, AI chat) | **Modern Standard Arabic (MSA / العربية الفصحى)** by DEFAULT. French second. English third. |
+| **Code comments, variable names, function names, file names, folder names, SQL columns/tables, internal docs** | **ENGLISH ONLY** |
+| **AI responses to farmers** | Formal MSA (الفصحى). **Never Darija. Never dialect.** |
+| **i18n translation keys** | English snake_case (e.g., `irrigation.water_amount`) |
+| **UI Direction** | **RTL** for Arabic. LTR for French/English. |
+
+---
+
+## 5. THEME ALIGNMENT: ETHICS, POWER, SHARED FUTURES
+
+Every feature must demonstrate these pillars:
+
+1. **Explainability** — Farmer sees WHY the recommendation was given (factors, confidence %, data sources)
+2. **Transparency** — "Data Sources Used" panel visible on every AI result
+3. **Consent** — `data_sharing_consent` boolean per user. No data used for aggregates without consent.
+4. **Data Ownership** — Farmers own their data. Open-source crop models committed post-hackathon.
+5. **Shared Futures** — Cross-border community intelligence (e.g., "Farmers in Tunisia face the same pest")
+6. **Audit Trail** — Every AI decision logged to `ai_explanations` + `data_audit_log`
+
+---
+
+## 6. COMPLETE FEATURE LIST
+
+### A. AUTHENTICATION & ONBOARDING
+- [ ] Farmer registration (phone number + OTP via WhatsApp/SMS)
+- [ ] Distributor registration (email + password)
+- [ ] Role-based access control (farmer vs. distributor vs. admin)
+- [ ] Country selector during onboarding (Morocco active, others pending)
+- [ ] Region/locality selection linked to geo-data
+- [ ] Preferred language selection (ar / fr / en)
+- [ ] Data sharing consent checkbox with plain-Arabic explanation
+- [ ] "Ethics Charter" static page explaining data ownership & transparency
+
+### B. MAÏ — IRRIGATION INTELLIGENCE
+- [ ] Weather data fetch (Open-Meteo API, free, no key)
+- [ ] ET₀ calculation via FAO-56 Penman-Monteith equation
+- [ ] Country-specific crop coefficient database (Kc initial / mid / end)
+- [ ] Growth stage tracking (initial → development → mid-season → late)
+- [ ] Irrigation recommendation engine (water amount in mm, timing)
+- [ ] Water savings calculator (compared to traditional scheduling)
+- [ ] Morning weather job (cron at 5:30 AM) — auto-generate daily recommendation
+- [ ] Historical irrigation logs per farm
+- [ ] **Explainability panel** on every recommendation:
+  - Weather factors (temp, humidity, wind, solar radiation)
+  - Weighted factor breakdown
+  - Confidence score (0.0–1.0)
+  - Data sources used (Open-Meteo, FAO-56, local crop coefficients)
+
+### C. SILA — MARKET INTELLIGENCE
+- [ ] Multi-country price aggregation:
+  - Morocco: ONCA (primary), WFP VAM, FAOSTAT
+  - North Africa: WFP VAM, FAOSTAT
+  - East Africa: RATIN, WFP VAM, Farmgain Africa
+  - West Africa: Afrique Verte, WFP VAM, FEWS NET
+  - Pan-Africa fallback: FAOSTAT
+- [ ] Price history charts by crop / region / market
+- [ ] Price trend analysis (rising / falling / stable)
+- [ ] Sell timing recommendations ("Sell now" vs. "Wait 2 weeks")
+- [ ] Currency normalization per country
+- [ ] Confidence score on price data (based on source freshness)
+- [ ] **Marketplace (Listings):**
+  - Farmer creates harvest listing (crop, quantity, quality, price, location)
+  - Distributor browses listings with filters (crop, region, price range)
+  - Distributor sends offer (price negotiation)
+  - Farmer accepts / declines / counters offer
+  - Offer statuses: pending, accepted, declined, countered
+  - Direct contact sharing upon mutual acceptance
+
+### D. AI PHOTO DIAGNOSIS
+- [ ] Farmer uploads crop photo (Supabase Storage)
+- [ ] AI vision analysis (Claude Vision or OpenRouter Vision fallback)
+  - Detect pest, disease, nutrient deficiency, or healthy plant
+  - Severity assessment (low / medium / high / critical)
+  - Treatment recommendations in MSA
+- [ ] **Explainability:** What visual signals the AI detected
+- [ ] Confidence score per diagnosis
+- [ ] Save detection history per farm
+
+### E. COMMUNITY ALERTS (CROSS-BORDER)
+- [ ] Auto-generate alert from confirmed AI detection (pest/disease outbreak)
+- [ ] 15km radius geo-fencing for nearby farmers
+- [ ] Cross-border similarity matching ("Similar outbreak in Tunisia")
+- [ ] Alert types: pest, disease, weather extreme, price spike
+- [ ] Severity levels: low, medium, high, critical
+- [ ] Push via WhatsApp + in-app notification
+- [ ] Community verification (farmers can confirm/dismiss alerts)
+
+### F. NOTIFICATIONS
+- [ ] **WhatsApp (Primary):** AiSensy Cloud API (free tier: 1,000 conversations/month)
+  - Irrigation alerts
+  - Price alerts
+  - Community alerts
+  - OTP authentication messages
+- [ ] **SMS (Fallback):** Twilio
+- [ ] Notification preferences per user (which alerts, which channel)
+- [ ] All notifications logged to `data_audit_log`
+
+### G. MAPS & GEOSPATIAL
+- [ ] Leaflet.js interactive map
+- [ ] Farm location pinning
+- [ ] 15km radius visualization for community alerts
+- [ ] Regional market locations
+- [ ] Climate zone overlay
+
+### H. ANALYTICS & DASHBOARD
+- [ ] Farmer dashboard:
+  - Today's irrigation recommendation
+  - Water savings total (liters or dirhams saved)
+  - Active listings status
+  - Recent community alerts
+  - Weather mini-widget
+- [ ] Distributor dashboard:
+  - Available listings by crop/region
+  - Price trend charts
+  - Active offers / negotiations
+  - Favorite farmers/regions
+
+### I. SETTINGS & PROFILE
+- [ ] Profile editing (name, phone, farm details)
+- [ ] Farm management (multiple plots per user)
+- [ ] Language switcher (Arabic | Français | English)
+- [ ] Theme toggle (light / dark)
+- [ ] Data transparency toggle ("Show data sources on AI results")
+- [ ] Consent management (view/withdraw data sharing consent)
+- [ ] Download my data (GDPR-style export)
+
+### J. ADMIN / INTERNAL
+- [ ] Country activation toggle (Morocco active, others staged)
+- [ ] Template message management (WhatsApp templates for AiSensy)
+- [ ] Price source health monitoring (is ONCA scraping working? Is WFP VAM up?)
+- [ ] Audit log viewer (all AI decisions, consent changes, data exports)
+
+---
+
+## 7. TECHNICAL STACK
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 18 + Vite + Tailwind CSS + shadcn/ui |
+| **State Management** | Zustand |
+| **HTTP Client** | TanStack Query (React Query) |
+| **Maps** | Leaflet.js |
+| **Charts** | Recharts |
+| **Backend** | Node.js + Express |
+| **Database** | Supabase (PostgreSQL + Auth + Realtime + Storage) |
+| **Weather API** | Open-Meteo API (free, no API key) |
+| **AI / LLM** | Anthropic Claude 3.5 Haiku (primary) |
+| **AI Backup** | OpenRouter Gemma 4 31B (free tier fallback) |
+| **Vision AI** | Claude Vision → OpenRouter Vision fallback |
+| **WhatsApp** | AiSensy Cloud API (free tier) |
+| **SMS Fallback** | Twilio |
+| **i18n** | i18next (ar / fr / en) |
+| **Deployment** | Railway (backend) + Vercel (frontend) |
+
+---
+
+## 8. DATABASE SCHEMA (12 TABLES)
+
+| Table | Purpose |
+|-------|---------|
+| `users` | Auth + profile + role + preferred_language + data_sharing_consent + country_code |
+| `farms` | Farm details, crops, size, location, geo, country_code, region_id |
+| `countries` | ISO code, names (en/fr/ar), currency, phone code, data_sources[], is_active |
+| `regions` | country_code, name, climate_zone, centroid (GEOGRAPHY), bounding_box |
+| `crop_coefficients` | country-specific Kc values, growth stages, water requirements |
+| `irrigation_logs` | MAÏ recommendations, weather snapshot, water savings |
+| `price_history` | crop/region/market prices, data_source, currency, confidence_score |
+| `listings` | Farmer harvest listings for marketplace |
+| `offers` | Distributor offers with negotiation statuses |
+| `detections` | Photo diagnosis results (AI vision) |
+| `community_alerts` | 15km radius alerts, severity, affected_area_km2, country_code |
+| `ai_explanations` | Explainability log for every AI recommendation (factors, sources, confidence) |
+| `data_audit_log` | Ethics/transparency logging (consent changes, AI decisions, data exports) |
+
+---
+
+## 9. AI RESPONSE CONTRACT (STRICT JSON)
+
+Every LLM call must return:
+```json
+{
+  "recommendation": "string (MSA)",
+  "explanation": "string (MSA — why this advice)",
+  "confidence": 0.0,
+  "factors": [
+    { "factor": "temperature", "weight": 0.4, "value": 32 }
+  ],
+  "action_items": ["خطوة 1", "خطوة 2"],
+  "data_sources_used": ["open_meteo", "fao_56"]
+}
+```
+
+---
+
+## 10. PROJECT STATUS LOG
+> **AGENTS: You MUST add a new entry here when you finish your session.**
+> Format: ### [DATE] — [SHORT TITLE], then bullet list with Phase, What was done, What works now, Next step.
+> This is how the next agent knows where you stopped. See .cursorrules for full instructions.
+
+---
+
+### 2026-05-05 — Project Scaffolding & Phase 0 Complete
+- **Phase:** 0 (Setup) — COMPLETE
+- **What was done:**
+  - Created full backend folder structure: config/, data/, utils/, services/, middleware/, routes/, scripts/, jobs/, tests/
+  - All files have stub comments describing their purpose
+  - Every folder has a detailed whatFor.txt
+  - schema.sql written (8 tables, enums, indexes)
+  - constants.js coded (default locale, pilot country)
+  - .env.example created with all needed keys
+  - package.json with scripts for test:claude, test:openrouter, test:llm
+  - Installed: @anthropic-ai/sdk, @openrouter/sdk, dotenv
+  - testClaude.js and testOpenRouter.js written and passing ✅
+  - WALKTHROUGH.md created with full 9-phase build guide
+  - .cursorrules expanded with 3-step agent workflow
+  - PROJECT_CONTEXT.txt updated with this status log section
+- **What works now:**
+  - `npm run test:claude` → Claude API responds ✅
+  - `npm run test:openrouter` → OpenRouter API responds ✅
+  - `node -e "console.log(require('./config/constants'))"` → prints constants ✅
+- **Next step:** Phase 1 — Code config/supabase.js and config/database.js (need `npm install @supabase/supabase-js` first), then run schema.sql in Supabase SQL Editor
+
+### 2026-05-07 — Phase 1 Config Layer Complete
+- **Phase:** 1 (Config Layer) — COMPLETE
+- **What was done:**
+  - config/supabase.js — creates and exports the Supabase client (service role key, full backend access)
+  - config/database.js — creates and exports a direct PostgreSQL connection pool (for scripts/migrations)
+  - Installed `pg` dependency for direct Postgres access
+  - Added .cursorrules extra rule: explain code in chat, keep comments simple, provide test instructions
+  - JWT_SECRET generated and populated in .env
+- **What works now:**
+  - `node -e "const s = require('./config/supabase'); console.log(typeof s)"` → object ✅
+  - `node -e "const p = require('./config/database'); console.log(typeof p.query); p.end()"` → function ✅
+  - Supabase HTTPS connection → status 200 ✅
+  - Direct Postgres (database.js) → DNS error on local network (code is correct, network issue)
+  - `node -e "console.log(require('./config/constants'))"` → still works ✅Introduce ur self descripe exactly what's ur feature , what are u capable of doing , how far can u go in vibe cooding and project engenering and architecture
+- **Next step:** Phase 2 — Code data/ files (cropCoefficients.js, shelfLifeTables.js, priceSeedData.js). Also: run schema.sql in Supabase SQL Editor when network allows.
+
+### 2026-05-08 — Phase 2 Static Data Layer Complete
+- **Phase:** 2 (Static Data) — COMPLETE
+- **What was done:**
+  - data/cropCoefficients.js — FAO-56 crop coefficient database (121 crops, 16 categories, 8 utility functions: findCropByName, searchCrops, getCropsByCategory, getAllCategories, calculateETc, getKcCurve, estimateKcForDay)
+  - data/shelfLifeTables.js — FAO grain storage conditions database (42 crops, 11 categories, 5 utility functions: findStorageByName, searchStorage, getStorageByCategory, getAllStorageCategories, estimateStorageLife)
+  - data/priceSeedData.js — Multi-country crop prices (92 entries, 19 countries, 18 crop types, 7 utility functions + exchange rates: getPricesByCountry, getPricesByCrop, getLatestPrice, getUniqueCountries, getUniqueCrops, getPriceInUSD)
+  - PROJECT_CONTEXT.txt upgraded to complete master document (Sections 1-10, feature list A-J, 12-table schema, AI response contract)
+  - .cursorrules expanded to 4 steps with multi-country architecture rules, AI/ethics rules, and communication rules
+- **What works now:**
+  - `node -e "const f = require('./data/cropCoefficients'); console.log(f.getAllCategories())"` → 16 categories ✅
+  - `node -e "const f = require('./data/cropCoefficients'); console.log(f.calculateETc('Tomato','mid',5))"` → 5.75 ✅
+  - `node -e "const f = require('./data/shelfLifeTables'); console.log(f.estimateStorageLife('Wheat',30,15))"` → HIGH risk ✅
+  - `node -e "const f = require('./data/priceSeedData'); console.log(f.getUniqueCountries())"` → 19 countries ✅
+  - All Phase 0 + Phase 1 tests still passing ✅
+- **Known issue:** Crop naming inconsistencies between the 3 data files (e.g. corn vs maize, potato vs irish_potato). Will need a cropMapper utility in Phase 3.
+- **Next step:** Phase 3 — Code utils/ files (validators.js, formatters.js, geospatial.js, promptBuilder.js, msaFallbackTemplates.js). Also: run schema.sql in Supabase SQL Editor when network allows.
+
+### 2026-05-08 — Phase 3 Utility Helpers Complete
+- **Phase:** 3 (Utility Helpers) — COMPLETE
+- **What was done:**
+  - utils/validators.js — Input validation (coords, crops, stages, roles, locales, country codes, confidence). Validates crop names against FAO-56 database.
+  - utils/formatters.js — Formatting for Arabic locale: prices (13 African currencies), dates, temperatures, water amounts, distances, confidence scores.
+  - utils/geospatial.js — Haversine distance calculation + isWithinRadius + findWithinRadius for 15km community alert system.
+  - utils/promptBuilder.js — LLM prompt templates for MAÏ (irrigation), SILA (market), and Detection (photo diagnosis). Enforces MSA + JSON contract.
+  - utils/msaFallbackTemplates.js — Hardcoded MSA Arabic strings for when AI is unavailable (irrigation, market, detection, alerts, errors).
+- **What works now:**
+  - `node -e "const v = require('./utils/validators'); console.log(v.isValidCrop('tomato'))"` → true ✅
+  - `node -e "const f = require('./utils/formatters'); console.log(f.formatPrice(12.5,'MAD'))"` → 12.50 د.م. ✅
+  - `node -e "const g = require('./utils/geospatial'); console.log(g.distanceKm(34.0,-6.8,34.1,-6.7))"` → 14.4 km ✅
+  - `node -e "const p = require('./utils/promptBuilder'); console.log(typeof p.buildIrrigationPrompt)"` → function ✅
+  - `node -e "const t = require('./utils/msaFallbackTemplates'); console.log(Object.keys(t))"` → 5 sections ✅
+- All Phase 0 + Phase 1 + Phase 2 tests still passing ✅
+  - **Next step:** Phase 4 — Code services/ (weatherService.js, etCalculator.js, aiTranslator.js, priceAnalyzer.js, storageCountdown.js, detectionService.js, communityService.js, notificationService.js). Also: run schema.sql in Supabase SQL Editor when network allows.
+
+### 2026-05-08 — Phase 3.5 Data Reorganization Complete
+
+- **New files created:**
+  - `data/cropRegistry.js` — Single source of truth (44 crops, 9 fields each)
+  - `scripts/validateCropData.js` — Self-verification script
+  - `scripts/exportCsv.js` — CSV export utility
+  - `data/csv/crops_registry.csv` — Registry export (44 rows)
+  - `data/csv/crops_irrigation.csv` — Morocco irrigation defaults (44 rows)
+  - `data/csv/crops_storage.csv` — Storage conditions (42 rows)
+  - `data/csv/crops_prices.csv` — Normalized prices (92 rows)
+  - `data/README.md` — Data layer documentation
+
+- **What works now:**
+  - `node -e "const r = require('./data/cropRegistry'); console.log(r.resolveBaseId('corn'))"` → 'maize' ✅
+  - `node -e "const r = require('./data/cropRegistry'); console.log(r.resolveBaseId('irish_potato'))"` → 'potato' ✅
+  - `node scripts/validateCropData.js` → Exit code 0 ✅
+  - All 4 CSV files export successfully with semicolon delimiter + UTF-8 BOM ✅
+  - Extended 30 Morocco crops + ~15 Africa crops unified ✅
+
+- **Key decisions:**
+  - Extended 30 over Essential 20 for stronger demo coverage
+  - FAO global average fallback for missing data (auditable, not hidden)
+  - Static JS registry over DB for simplicity
+  - Reverse-lookup Map for O(1) price seeding performance
+
+- **Validation:** `node scripts/validateCropData.js` → 0 orphans ✅
+
+- **Next step:** Continue Phase 4 — Code services/
