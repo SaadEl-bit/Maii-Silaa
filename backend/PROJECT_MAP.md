@@ -1,6 +1,6 @@
 # FILAHA — PROJECT MAP
 
-> Last updated: 2026-05-08
+> Last updated: 2026-05-08 (Phase 4 complete)
 > Maintained by: Tech Lead — update on every phase completion
 
 ---
@@ -13,8 +13,8 @@
 | **Package Manager** | npm | 11.6.2 | — |
 | **Backend Framework** | Express | (not yet installed) | 4.x |
 | **Database** | Supabase (PostgreSQL) | — | — |
-| **AI Primary** | Anthropic Claude | @anthropic-ai/sdk ^0.52.0 | **0.95.1** ⚠️ |
-| **AI Fallback** | OpenRouter (Gemma) | @openrouter/sdk ^0.12.28 | 0.12.35 |
+| **AI Primary** | OpenRouter (Gemma 4 31B free) | @openrouter/sdk ^0.12.28 | 0.12.35 |
+| **AI Fallback** | Anthropic Claude (INACTIVE — key kept, not called) | @anthropic-ai/sdk ^0.52.0 | 0.95.1 ⚠️ |
 | **DB Client** | Supabase JS | @supabase/supabase-js ^2.105.3 | latest |
 | **DB Pool** | pg | ^8.20.0 | 8.20.0 |
 | **Dotenv** | — | ^16.4.7 (installed 16.6.1) | **17.4.2** ⚠️ |
@@ -35,7 +35,7 @@
 | `dotenv@16.6.1` | ⚠️ outdated (latest 17.4.2) | Skip — contains breaking Node 22+ changes. Stay on 16.x for Node 24 compat. |
 | `adk@0.0.7` (root package.json) | ❌ orphan dep | Remove — `adk` is unrelated (`@arcadible/cli` package) |
 | Root `package.json` | ❌ duplicate `@anthropic-ai/sdk@^0.93.0` | Remove — backend already has its own |
-| `CLAUDE_MODEL=claude-opus-4-7` in .env | ⚠️ expensive model | Switch to `claude-3-5-haiku-20241022` (faster, cheaper, per spec) |
+| `CLAUDE_MODEL=claude-opus-4-7` in .env | ✅ moot | Claude is disabled — OpenRouter is sole provider. Kept for future re-enable. |
 | NPM script `test:claude` | ❌ path mismatch | Points to `testClaudeApi.js` but file is `testClaude.js` — fix script path |
 
 ---
@@ -194,10 +194,13 @@ crop + region ──→ priceAnalyzer ──→ promptBuilder ──→ Claude A
 - **Verification**: `node -e "const p = require('./services/priceAnalyzer'); p.analyzeTrend('tomato','MA').then(console.log)"` returns `{trend, recommendation}`
 - **Verification**: `node -e "const s = require('./services/storageCountdown'); s.estimate('wheat',{temp:30,humidity:15},'ventilated')"` returns `{remainingDays, status}`
 
-### Milestone M3: Detection + Community (Phase 4c)
-- [ ] `detectionService.js` — vision analysis, severity assessment, treatment recs
-- [ ] `communityService.js` — 15km radius geo-alert generation
-- [ ] `notificationService.js` — WhatsApp/SMS dispatch
+### Milestone M3: Detection + Community (Phase 4c) — COMPLETE
+- [x] `detectionService.js` — vision analysis, severity assessment, treatment recs
+- [x] `communityService.js` — 15km radius geo-alert generation
+- [x] `notificationService.js` — **In-app Supabase notifications** (WhatsApp/SMS commented out for future)
+  - `sendInApp(userId, title, message, type)` → writes to `notifications` table
+  - `getUnread(userId)` → returns unread rows (frontend polls or uses Supabase Realtime)
+  - WhatsApp/Twilio code preserved in comments — activate once API configured
 - **Verification**: Detection returns AI JSON contract with explainability factors
 - **Verification**: Community alert finds farmers within 15km radius
 
@@ -240,9 +243,10 @@ crop + region ──→ priceAnalyzer ──→ promptBuilder ──→ Claude A
 | `crop_type` enum too limited | Only 5 values — needs expansion to match data files (121 crops) | HIGH |
 | `severity_level` missing `critical` | Master doc specifies 4 levels (low/medium/high/critical), schema has 3 | MEDIUM |
 | `users.location_lat/lng` | Should be on `farms` table not `users` — or both | MEDIUM |
-| No `cropMapper` utility | Data files have naming inconsistencies (corn vs maize) | MEDIUM |
-| Claude model is Opus | `.env` uses `claude-opus-4-7` — should use `haiku` for speed/cost | HIGH |
+| No `cropMapper` utility | Data files have naming inconsistencies (corn vs maize) | MEDIUM — solved by cropRegistry.js ✅ |
+| Claude model is Opus | `.env` uses `claude-opus-4-7` — Claude is INACTIVE (OpenRouter is default) | RESOLVED ✅ |
 | Frontend empty | No React/Vite scaffold | HIGH |
+| `notifications` DB table | Required for in-app notifications — not yet in schema.sql | HIGH — add before Phase 5 |
 
 ### Phase 4 Implementation Order
 ```
