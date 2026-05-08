@@ -347,3 +347,26 @@ Every LLM call must return:
 - **Validation:** `node scripts/validateCropData.js` → 0 orphans ✅
 
 - **Next step:** Continue Phase 4 — Code services/
+
+### 2026-05-08 — Phase 4 Services Layer Complete + Plan Changes
+- **Phase:** 4 (Services Layer) — COMPLETE
+- **What was done:**
+  - services/weatherService.js — Open-Meteo API fetch, response normalizer, WMO weather codes, irrigation weather check.
+  - services/etCalculator.js — FAO-56 Penman-Monteith ET₀, growth stage detection, Kc lookup, ETc calculation, 7-day schedule.
+  - services/aiTranslator.js — AI interface; **now OpenRouter-only** (Claude key kept in .env but bypassed).
+  - services/priceAnalyzer.js — Trend analysis from price_history + seed data fallback.
+  - services/storageCountdown.js — Shelf-life estimation using FAO storage conditions + weather adjustment.
+  - services/detectionService.js — Photo upload to Supabase Storage + AI diagnosis via aiTranslator.
+  - services/communityService.js — 15km radius alert generation using geospatial utility.
+  - services/notificationService.js — **WhatsApp/SMS replaced with in-app Supabase notifications**.
+- **⚠️ PLAN CHANGES:**
+  - **AI Provider:** Claude is DISABLED. OpenRouter is the sole active AI.
+  - **Notifications:** WhatsApp/SMS replaced with `sendInApp()` writing to Supabase.
+  - **Soil Type:** Farmer selects soil type in frontend onboarding instead of using an API.
+  - **i18n:** AI returns Arabic only. UI static text will be handled by frontend.
+- **What works now:**
+  - weatherService fetches live Open-Meteo data ✅
+  - etCalculator produces ETc from real weather ✅
+  - aiTranslator calls OpenRouter and returns JSON ✅
+  - notificationService writes alerts to Supabase ✅
+- **Next step:** Phase 5 — Create `middleware/` and `routes/`. Run schema.sql in Supabase.
