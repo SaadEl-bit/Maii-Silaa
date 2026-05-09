@@ -18,6 +18,8 @@ require('dotenv').config();
 const express = require('express');
 
 const { errorHandler, notFoundHandler, asyncHandler } = require('./middleware/errorHandler');
+const { i18n } = require('./middleware/i18n');
+const { limiters } = require('./middleware/rateLimiter');
 
 const authRoutes = require('./routes/auth');
 const irrigationRoutes = require('./routes/irrigation');
@@ -31,6 +33,17 @@ const app = express();
 // ── Middleware ──────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// I18n — resolve locale (ar default)
+app.use(i18n);
+
+// Rate Limiting — per route
+app.use('/api/auth', limiters.auth);
+app.use('/api/detection', limiters.detection);
+app.use('/api/irrigation', limiters.standard);
+app.use('/api/market', limiters.public);
+app.use('/api/community', limiters.standard);
+app.use('/api/notifications', limiters.standard);
 
 // CORS
 app.use((req, res, next) => {

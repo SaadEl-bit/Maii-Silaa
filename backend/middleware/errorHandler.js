@@ -50,7 +50,7 @@ function getErrorKey(err) {
     503: 'خدمة غير متاحة'
   };
   
-  return keys[err.statusCode] || 'خطأ未知';
+  return keys[err.statusCode] || 'خطأ';
 }
 
 /**
