@@ -23,7 +23,10 @@ const { limiters } = require('./middleware/rateLimiter');
 
 const authRoutes = require('./routes/auth');
 const irrigationRoutes = require('./routes/irrigation');
+const weatherRoutes = require('./routes/weather');
 const marketRoutes = require('./routes/market');
+const silaRoutes = require('./routes/sila');
+const marketplaceRoutes = require('./routes/marketplace');
 const detectionRoutes = require('./routes/detection');
 const communityRoutes = require('./routes/community');
 const notificationRoutes = require('./routes/notifications');
@@ -41,7 +44,10 @@ app.use(i18n);
 app.use('/api/auth', limiters.auth);
 app.use('/api/detection', limiters.detection);
 app.use('/api/irrigation', limiters.standard);
+app.use('/api/weather', limiters.public);
 app.use('/api/market', limiters.public);
+app.use('/api/sila', limiters.public);
+app.use('/api/marketplace', limiters.standard);
 app.use('/api/community', limiters.standard);
 app.use('/api/notifications', limiters.standard);
 
@@ -67,7 +73,10 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/irrigation', irrigationRoutes);
+app.use('/api/weather', weatherRoutes);
 app.use('/api/market', marketRoutes);
+app.use('/api/sila', silaRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/detection', detectionRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/notifications', notificationRoutes);

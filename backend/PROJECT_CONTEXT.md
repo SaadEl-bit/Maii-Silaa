@@ -427,3 +427,36 @@ Every LLM call must return:
   - `GET /api/health` → returns status: ok ✅
   - All routes respond with JSON ✅
 - **Next step:** Phase 6 — Frontend (React + Vite + shadcn/ui)
+
+### 2026-05-09 — Auth System Redesign (Split Registration)
+- **Phase:** 5.5 (Auth Hardening) — COMPLETE
+- **What was done:**
+  - **`routes/auth.js` — Full Rewrite:**
+    - Replaced single `/register` with split endpoints:
+      - `POST /auth/register/farmer` → Phone + Password via Supabase Auth
+      - `POST /auth/register/distributor` → Email + Password via Supabase Auth
+    - `POST /auth/login` → Unified login: detects phone vs. email automatically, returns Supabase `access_token` + user profile
+    - `POST /auth/otp` → Triggers Supabase SMS OTP (farmer forgot password)
+    - `POST /auth/verify-otp` → Verifies OTP; with `new_password` → password reset; without → phone confirmation
+    - `POST /auth/reset-password` → Sends Supabase password reset email (distributor)
+    - `GET /auth/me` → Returns user + full `public.users` profile
+    - `POST /auth/logout` → Invalidates Supabase session
+    - Added input validation guards to every route
+  - **`middleware/auth.js` — Critical Rewrite:**
+    - Old: used `jwt.verify(token, JWT_SECRET, { issuer: 'filaha' })` — incompatible with Supabase tokens
+    - New: uses `supabase.auth.getUser(token)` to verify tokens via Supabase's own secret
+    - `req.user` now contains `{ id, sub, email, phone, role, name, country_code, user_metadata }`
+    - Both `authenticate` (blocking) and `optionalAuth` (non-blocking) are async
+    - Removed `generateToken()` helper — tokens come from Supabase, not generated locally
+  - `middleware/roleCheck.js` — No changes needed; `user.role || user.user_metadata?.role` already handles the new token shape
+- **⚠️ PLAN CHANGES:**
+  - Auth is now split by role: farmers use Phone + Password, distributors use Email + Password
+  - OTP is now a real Supabase SMS OTP (not the mock dev OTP from before)
+  - For hackathon/dev testing: disable phone confirmation in Supabase Dashboard → Authentication → Settings → "Enable phone confirmations" OFF
+  - `FRONTEND_URL` env var required for email redirect links
+- **What works now:**
+  - Farmer registration and login via phone ✅ (when Supabase phone auth is configured)
+  - Distributor registration and login via email ✅
+  - Token verification in middleware is now compatible with Supabase JWTs ✅
+  - roleCheck.js correctly reads role from req.user for all protected routes ✅
+- **Next step:** Phase 6 — Frontend (React + Vite + shadcn/ui) + Supabase DB trigger for `public.users` auto-creation
