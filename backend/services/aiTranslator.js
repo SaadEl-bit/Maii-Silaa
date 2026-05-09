@@ -16,7 +16,6 @@ const OpenAI = require('openai');
 require('dotenv').config();
 
 const PROMPT_BUILDER = require('../utils/promptBuilder');
-const MSA_FALLBACK = require('../utils/msaFallbackTemplates');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
@@ -170,19 +169,24 @@ async function callOpenRouter(system, user, temperature, maxTokens, model) {
   const client = getOpenRouterClient();
   if (!client) throw new Error('No OpenRouter client — check OPENROUTER_API_KEY in .env');
 
-  const response = await client.chat.completions.create({
-    model,
-    max_tokens: maxTokens,
-    temperature,
-    messages: [
-      { role: 'system', content: system },
-      { role: 'user', content: user }
-    ],
-    headers: {
-      'HTTP-Referer': process.env.OPENROUTER_SITE_URL || 'http://localhost:3000',
-      'X-Title': process.env.OPENROUTER_APP_NAME || 'Filaha'
+  const response = await client.chat.completions.create(
+    {
+      model,
+      max_tokens: maxTokens,
+      temperature,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user }
+      ]
+    },
+    {
+      // OpenRouter attribution headers — passed as SDK request options, not body keys
+      headers: {
+        'HTTP-Referer': process.env.OPENROUTER_SITE_URL || 'http://localhost:3000',
+        'X-Title': process.env.OPENROUTER_APP_NAME || 'Filaha'
+      }
     }
-  });
+  );
 
   const content = response.choices[0]?.message?.content;
   if (!content) throw new Error('Empty OpenRouter response');
@@ -203,28 +207,28 @@ async function callOpenRouter(system, user, temperature, maxTokens, model) {
 function getFallbackResponse(promptType) {
   const fallbacks = {
     irrigation: {
-      recommendation: MSA_FALLBACK.irrigation.retryLater,
-      explanation: MSA_FALLBACK.common.systemError,
+      recommendation: 'يرجى المحاولة لاحقاً.',
+      explanation: 'عذراً، لم نتمكن من حساب التوصية الآن.',
       confidence: 0.1,
       factors: [],
-      action_items: [],
+      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
       data_sources_used: ['fallback']
     },
     market: {
-      recommendation: MSA_FALLBACK.market.retryLater,
-      explanation: MSA_FALLBACK.common.systemError,
+      recommendation: 'يرجى المحاولة لاحقاً.',
+      explanation: 'عذراً، لم نتمكن من حساب التوصية الآن.',
       confidence: 0.1,
       factors: [],
-      action_items: [],
+      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
       data_sources_used: ['fallback']
     },
     detection: {
-      diagnosis: MSA_FALLBACK.detection.retryLater,
+      diagnosis: 'يرجى المحاولة لاحقاً.',
       severity: 'unknown',
-      treatment: '',
+      treatment: 'عذراً، لم نتمكن من التشخيص الآن.',
       confidence: 0.1,
       visualSignals: [],
-      action_items: [],
+      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
       data_sources_used: ['fallback']
     }
   };
@@ -267,7 +271,8 @@ const aiTranslator = {
   translate,
   validateResponse,
   callClaude,
-  callOpenRouter
+  callOpenRouter,
+  getFallbackResponse
 };
 
 if (typeof module !== 'undefined' && module.exports) {

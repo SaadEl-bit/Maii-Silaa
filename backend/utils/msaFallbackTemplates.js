@@ -85,6 +85,40 @@ const msaFallbackTemplates = {
     networkError: 'خطأ في الاتصال. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.',
     invalidInput: 'البيانات المدخلة غير صحيحة. يُرجى التحقق والمحاولة مرة أخرى.',
   },
+
+  // --- Retry Later (for AI failures) ---
+  common: {
+    systemError: 'عذراً، الخدمة غير متاحة الآن. يرجى المحاولة لاحقاً.',
+    retryLater: 'يرجى المحاولة لاحقاً.',
+  },
+
+  // --- Irrigation Retry ---
+  irrigationRetry: {
+    retryLater: {
+      recommendation: 'يرجى المحاولة لاحقاً.',
+      explanation: 'عذراً، لم نتمكن من حساب التوصية الآن.',
+      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
+    },
+  },
+
+  // --- Market Retry ---
+  marketRetry: {
+    retryLater: {
+      recommendation: 'يرجى المحاولة لاحقاً.',
+      explanation: 'عذراً، لم نتمكن من حساب التوصية الآن.',
+      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
+    },
+  },
+
+  // --- Detection Retry ---
+  detectionRetry: {
+    retryLater: {
+      diagnosis: 'يرجى المحاولة لاحقاً.',
+      severity: 'unknown',
+      treatment: 'عذراً، لم نتمكن من التشخيص الآن.',
+      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
+    },
+  },
 };
 
 module.exports = msaFallbackTemplates;
