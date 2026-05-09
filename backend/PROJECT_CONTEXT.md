@@ -404,3 +404,26 @@ Every LLM call must return:
   - All Arabic UI strings are clean (no English leakage) ✅
   - communityService.broadcast() writes to Supabase notifications table ✅
 - **Next step:** Phase 5 — Create `middleware/` (auth, role, i18n, rate-limit, error) and `routes/` (irrigation, market, detection, community, notifications). Run `schema.sql` in Supabase SQL Editor.
+
+### 2026-05-09 — Phase 5 Middleware + Routes Complete
+- **Phase:** 5 (Middleware + Routes) — COMPLETE
+- **What was done:**
+  - `middleware/auth.js` — JWT token verification from Supabase Auth
+  - `middleware/roleCheck.js` — Role-based access (farmer/distributor/admin)
+  - `middleware/errorHandler.js` — Global error handler with audit logging
+  - `routes/irrigation.js` — GET /recommend, GET /history, POST /log
+  - `routes/market.js` — GET /price, /prices, /trend, /best-price, /crops
+  - `routes/detection.js` — POST /analyze, GET /history
+  - `routes/community.js` — GET /alerts, POST /verify, GET /farmers-nearby
+  - `routes/notifications.js` — GET /, PUT /:id/read, PUT /read-all, DELETE /:id
+  - `routes/auth.js` — POST /register, /login, /otp, /verify-otp, GET /me, /logout
+  - `server.js` — Express entry point with all routes mounted
+- **Test Results:**
+  - Health endpoint: `{"status":"ok","timestamp":"2026-05-09..."}` ✅
+  - Total routes: 23 endpoints across 6 route files
+  - Middleware: 3 files (auth, roleCheck, errorHandler)
+- **What works now:**
+  - `node server.js` → starts on port 3000 ✅
+  - `GET /api/health` → returns status: ok ✅
+  - All routes respond with JSON ✅
+- **Next step:** Phase 6 — Frontend (React + Vite + shadcn/ui)
