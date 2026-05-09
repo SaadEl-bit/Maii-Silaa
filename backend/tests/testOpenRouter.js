@@ -21,7 +21,7 @@ if (!API_KEY || API_KEY.trim() === "") {
 }
 
 // ── The question we will ask ──────────────────────────────────────────────────
-const USER_QUESTION = "Say hello in one sentence and tell me which model you are. Then tell it in Moroccan Darija";
+const USER_QUESTION = "Introduce your self in arabic MSA and give me a num/10 on (ur arabic MSA level , knoledge about crops and farms and interpretation) in english";
 
 // ── Send the request ──────────────────────────────────────────────────────────
 async function testOpenRouter() {
@@ -39,7 +39,7 @@ async function testOpenRouter() {
       "X-Title":        process.env.OPENROUTER_APP_NAME  || "Filaha",
     },
     body: JSON.stringify({
-      model:      MODEL,
+      model:MODEL,
       max_tokens: 512,
       messages: [
         {

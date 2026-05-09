@@ -131,17 +131,19 @@ Every feature must demonstrate these pillars:
 - [ ] Cross-border similarity matching ("Similar outbreak in Tunisia")
 - [ ] Alert types: pest, disease, weather extreme, price spike
 - [ ] Severity levels: low, medium, high, critical
-- [ ] Push via WhatsApp + in-app notification
+- [x] **In-app notifications** via Supabase `notifications` table (active ✅)
+- [ ] WhatsApp broadcast (AiSensy — commented out, keys in .env, future activation)
 - [ ] Community verification (farmers can confirm/dismiss alerts)
 
-### F. NOTIFICATIONS
-- [ ] **WhatsApp (Primary):** AiSensy Cloud API (free tier: 1,000 conversations/month)
-  - Irrigation alerts
-  - Price alerts
-  - Community alerts
-  - OTP authentication messages
-- [ ] **SMS (Fallback):** Twilio
-- [ ] Notification preferences per user (which alerts, which channel)
+### F. NOTIFICATIONS ⚠️ PLAN CHANGE
+- [x] **In-App (Active):** `notificationService.sendInApp()` → writes to Supabase `notifications` table
+  - Irrigation alerts (`sendIrrigationAlert`)
+  - Price alerts (`sendPriceAlert`)
+  - Community alerts (`sendCommunityAlert`)
+  - OTP log (dev only — production will use SMS)
+- [ ] **WhatsApp (Future):** AiSensy Cloud API — keys in `.env`, code commented out
+- [ ] **SMS (Future):** Twilio — keys in `.env`, code commented out
+- [x] Notification preferences per user (default: in_app for all channels)
 - [ ] All notifications logged to `data_audit_log`
 
 ### G. MAPS & GEOSPATIAL
@@ -193,12 +195,11 @@ Every feature must demonstrate these pillars:
 | **Backend** | Node.js + Express |
 | **Database** | Supabase (PostgreSQL + Auth + Realtime + Storage) |
 | **Weather API** | Open-Meteo API (free, no API key) |
-| **AI / LLM** | Anthropic Claude 3.5 Haiku (primary) |
-| **AI Backup** | OpenRouter Gemma 4 31B (free tier fallback) |
-| **Vision AI** | Claude Vision → OpenRouter Vision fallback |
-| **WhatsApp** | AiSensy Cloud API (free tier) |
-| **SMS Fallback** | Twilio |
-| **i18n** | i18next (ar / fr / en) |
+| **Text AI (irrigation/market)** | OpenRouter cascade — 14 free models, auto-fallback on 429/404 |
+| **Vision AI (photo diagnosis)** | 4-tier VLM consensus: Gemini 2.5 Flash + Qwen3-VL → Claude arbitrator |
+| **AI backup** | Claude Sonnet / Haiku (Anthropic direct — arbitrator for vision, future for text) |
+| **Notifications** | In-App via Supabase `notifications` table (WhatsApp/SMS: keys kept, not active) |
+| **i18n** | i18next (ar / fr / en) — AI returns MSA Arabic; frontend handles FR/EN |
 | **Deployment** | Railway (backend) + Vercel (frontend) |
 
 ---
@@ -370,3 +371,36 @@ Every LLM call must return:
   - aiTranslator calls OpenRouter and returns JSON ✅
   - notificationService writes alerts to Supabase ✅
 - **Next step:** Phase 5 — Create `middleware/` and `routes/`. Run schema.sql in Supabase.
+
+### 2026-05-09 — Phase 4 VLM Upgrade + Full Services Audit
+- **Phase:** 4.5 (Services Hardening) — COMPLETE
+- **What was done:**
+  - **VLM Benchmark (testImage.js):** Tested 5 vision models. Results ranked: Gemini 2.5 Flash Lite (3.08s ✅) > Gemini 2.0 Flash Lite (4.10s ✅) > Claude Haiku (5.83s ✅) > Qwen3-VL-8B (14.39s ✅) > Claude Sonnet (19.56s ✅). NVIDIA free VLM rate-limited ❌.
+  - **Text Model Benchmark (testModels.js):** Tested 17 free OpenRouter text models. Winners: minimax/minimax-m2.5 (FAO-56 math, Markdown tables, 75% conf) > gpt-oss-120b (6.25s, 92% conf) > gpt-oss-20b (8mm vs 5.8mm).
+  - **detectionService.js — Full Rewrite:** 4-tier multi-model VLM consensus pipeline:
+    - T1 `google/gemini-2.5-flash-lite` + T2 `qwen/qwen3-vl-8b-instruct` run **in parallel**
+    - `shouldTriggerFallback()` checks confidence (<0.75), diagnosis category disagreement, visual signal gaps
+    - T3 `claude-sonnet-4-6` (Anthropic direct) as arbitrator when T1+T2 disagree
+    - T4 `claude-haiku-4-5-20251001` (Anthropic direct) as emergency
+    - Prompt explicitly asks for self-reported confidence to drive fallback logic
+    - Results enriched with `pipeline`, `consensus`, `severityLabel` fields
+  - **aiTranslator.js — Model Cascade:** Replaced single-model call with a 14-model auto-cascade. Skips on 429/404. `OPENROUTER_MODEL` env var prepended as override.
+  - **communityService.js:** `broadcast()` migrated from `notificationService.send(phone, msg, 'whatsapp')` → `notificationService.sendCommunityAlert(userId, { alert, distance, action })`
+  - **Bug Fixes (full audit):**
+    - `etCalculator.js` — Critical FAO-56 math bug: `es` was set equal to `ea`, zeroing VPD term. Fixed: `es` now calculated from temperature only; `ea = es × (humidity/100)`.
+    - `weatherService.js` — `fetchForecast()` was broken: accessed `data.forecast.daily.dates` which doesn't exist in normalized format. Fixed: dedicated raw API call with `daily` endpoint, maps `daily.time` array directly.
+    - `priceAnalyzer.js` — Arabic string had `'لا توجد بياناتprices'` (English leaked). Fixed to clean Arabic.
+    - `storageCountdown.js` — Arabic string had `'مخاطر متوسطة -_monitor'` (dev artifact). Fixed to `راقب الحالة بانتظام`.
+    - `aiTranslator.js` — Removed orphaned `VISION_MODEL` constant; fixed `callClaude` which used `response_format` (OpenAI-style, invalid in Anthropic SDK). JSON now enforced via system prompt.
+- **⚠️ PLAN CHANGES:**
+  - **Photo Diagnosis:** `detectionService.js` is now a **self-contained VLM pipeline** (does NOT go through `aiTranslator.js`). The two stacks are now decoupled.
+  - **Vision Primary:** `google/gemini-2.5-flash-lite` (cheapest, fastest, $0.10/1M) replaces Claude as T1 for vision. Claude is now T3 arbitrator only.
+  - **Community Broadcast:** Migrated from WhatsApp to in-app `sendCommunityAlert()`. Uses `farmer.user_id` not `farmer.phone`.
+- **What works now:**
+  - Full 4-tier VLM pipeline in detectionService ✅
+  - 14-model text cascade in aiTranslator with auto-retry ✅
+  - FAO-56 ET₀ calculation now produces correct non-zero VPD term ✅
+  - fetchForecast returns correct day-by-day arrays ✅
+  - All Arabic UI strings are clean (no English leakage) ✅
+  - communityService.broadcast() writes to Supabase notifications table ✅
+- **Next step:** Phase 5 — Create `middleware/` (auth, role, i18n, rate-limit, error) and `routes/` (irrigation, market, detection, community, notifications). Run `schema.sql` in Supabase SQL Editor.

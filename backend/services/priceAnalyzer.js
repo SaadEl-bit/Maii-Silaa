@@ -28,7 +28,7 @@ async function analyzeTrend(cropName, countryCode) {
     return {
       trend: 'unknown',
       avgPrice: null,
-      recommendation: 'لا توجد بياناتprices',
+      recommendation: 'لا توجد بيانات أسعار متاحة لهذا المحصول في هذا البلد',
       confidence: 0.1,
       sources: [],
       currency: getCountryCurrency(countryCode)

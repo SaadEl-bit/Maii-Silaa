@@ -117,7 +117,7 @@ function calculateStorageFactor(storageType) {
 function getDegradationMessage(risk) {
   const messages = {
     HIGH: 'مخاطر عالية - تدهور سريع',
-    MODERATE: 'مخاطر متوسطة -_monitor',
+    MODERATE: 'مخاطر متوسطة — راقب الحالة بانتظام',
     LOW: 'تخزين جيد'
   };
   return messages[risk] || 'غير معروف';

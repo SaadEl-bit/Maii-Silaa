@@ -1,1 +1,0 @@
-// Apply SQL migrations / schema sync (CI or local).
