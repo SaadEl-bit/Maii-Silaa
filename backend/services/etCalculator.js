@@ -14,7 +14,7 @@ const cropCoefficients = require('../data/cropCoefficients');
 
 /**
  * Calculate ET0 (reference evapotranspiration) using simplified Hargreaves method
- * Note: For production, use full FAO-56 Penman-Monteith equation
+ * Note: For production, we'll use full FAO-56 Penman-Monteith equation
  * @param {object} weather - Normalized weather data
  * @returns {number} ET0 in mm/day
  */
@@ -41,12 +41,15 @@ function calculateET0(weather) {
   const Rn = radiation * 0.0864 / 24;
   const G = 0;
   
-  const ea = 0.6108 * Math.exp((17.27 * tempC) / (tempC + 237.3)) * (humidityPct / 100);
-  const es = ea;
-  
+  // es = saturation vapour pressure (from temperature only)
+  const es = 0.6108 * Math.exp((17.27 * tempC) / (tempC + 237.3));
+  // ea = actual vapour pressure (humidity-adjusted)
+  const ea = es * (humidityPct / 100);
+
   const delta = slopeVP;
   const gammaG = gamma;
-  
+
+  // FAO-56 Penman-Monteith: VPD = (es - ea), this term must be > 0
   const num = 0.408 * delta * (Rn - G) + gamma * (900 / (tempC + 273)) * u2 * (es - ea);
   const den = delta + gammaG * (1 + 0.34 * u2);
   

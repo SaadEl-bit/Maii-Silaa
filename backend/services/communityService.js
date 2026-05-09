@@ -158,16 +158,22 @@ async function broadcast(alert, farmers) {
   const results = [];
   
   for (const farmer of farmers) {
+    if (!farmer.user_id) continue; // Requires user_id for in-app notifications
+    
     try {
-      const message = generateAlertMessage(alert, farmer.distance);
-      const result = await notificationService.send(
-        farmer.phone,
-        message,
-        'whatsapp'
+      // In-app community alert using the new schema
+      const result = await notificationService.sendCommunityAlert(
+        farmer.user_id,
+        {
+          alert: `خطر محتمل: ${alert.diagnosis || 'آفة زراعية'} في ${alert.crop_type || 'نفس نوع المحصول'} (مستوى: ${alert.severity || 'متوسط'})`,
+          distance: farmer.distance,
+          action: alert.action_items?.[0] || 'راجع مزرعتك واتخذ التدابير الوقائية'
+        }
       );
-      results.push({ farmerId: farmer.id, ...result });
+      
+      results.push({ farmerId: farmer.id, userId: farmer.user_id, ...result });
     } catch (error) {
-      results.push({ farmerId: farmer.id, error: error.message });
+      results.push({ farmerId: farmer.id, userId: farmer.user_id, error: error.message });
     }
   }
   

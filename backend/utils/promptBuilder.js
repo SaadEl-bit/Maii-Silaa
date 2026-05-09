@@ -2,7 +2,7 @@
 
 /**
  * Build a prompt for the MAÏ irrigation recommendation.
- * Gives Claude all the data it needs to make a decision.
+ * Gives Claude (or OpenRouter) all the data it needs to make a decision.
  */
 function buildIrrigationPrompt({ crop, stage, weather, etResult, country }) {
   return `أنت مهندس زراعي رقمي في منصة "فلاحة" للذكاء الزراعي الأفريقي.

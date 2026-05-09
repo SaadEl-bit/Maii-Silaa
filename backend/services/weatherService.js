@@ -161,25 +161,31 @@ function checkIrrigationWeather(weather) {
  * @returns {Promise<object[]>} Array of daily weather
  */
 async function fetchForecast(lat, lng, days = 3) {
-  const data = await fetchWeather(lat, lng, { forecastDays: days });
-  
-  if (!data.forecast || !data.forecast.daily) {
+  const forecastDays = Math.min(7, Math.max(1, days));
+  const url = `${OPEN_METEO_BASE}?latitude=${lat}&longitude=${lng}` +
+    `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code` +
+    `&timezone=auto&forecast_days=${forecastDays}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Open-Meteo forecast error: ${response.status}`);
+    const raw = await response.json();
+
+    const daily = raw.daily || {};
+    const dates  = daily.time || [];
+
+    return dates.map((date, i) => ({
+      date,
+      tempMax: daily.temperature_2m_max?.[i] ?? null,
+      tempMin: daily.temperature_2m_min?.[i] ?? null,
+      rainSum: daily.precipitation_sum?.[i] ?? 0,
+      weatherCode: daily.weather_code?.[i] ?? 0,
+      weather: weatherCodeToText(daily.weather_code?.[i] ?? 0)
+    }));
+  } catch (err) {
+    console.error('weatherService.fetchForecast error:', err.message);
     return [];
   }
-  
-  const daily = data.forecast.daily;
-  const dailyData = [];
-  
-  for (let i = 0; i < Math.min(days, daily.length); i++) {
-    dailyData.push({
-      date: daily.dates[i],
-      tempMax: daily.tempMax?.[i],
-      tempMin: daily.tempMin?.[i],
-      rainSum: daily.rainSum?.[i]
-    });
-  }
-  
-  return dailyData;
 }
 
 // Export for CommonJS

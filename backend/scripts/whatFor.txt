@@ -1,11 +1,7 @@
 ROLE: One-off CLI scripts — run manually from terminal to set up or seed the database. NOT part of the running server.
 
 FILES:
-- migrate.js          → Reads config/schema.sql and executes it against Supabase PostgreSQL. Creates all 8 tables, enums, indexes. Run FIRST before anything else that touches the DB.
 - seedDemoAccounts.js  → Creates demo user accounts: one farmer (phone OTP) and one distributor (email/password) in Supabase Auth + users table. Run AFTER migrate.
-- seedPrices.js        → Inserts mock price_history rows from data/priceSeedData.js into the database. Used for hackathon demo when live ONCA/WFP feeds are unavailable. Run AFTER seedDemoAccounts.
 
 BUILD ORDER: Phase 5 — build after services are ready. Run in strict order: migrate → seedDemoAccounts → seedPrices.
-RUN: node scripts/migrate.js
 RUN: node scripts/seedDemoAccounts.js
-RUN: node scripts/seedPrices.js
