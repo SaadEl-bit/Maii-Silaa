@@ -460,3 +460,15 @@ Every LLM call must return:
   - Token verification in middleware is now compatible with Supabase JWTs ✅
   - roleCheck.js correctly reads role from req.user for all protected routes ✅
 - **Next step:** Phase 6 — Frontend (React + Vite + shadcn/ui) + Supabase DB trigger for `public.users` auto-creation
+
+### 2026-05-10 — API Debugging & AI Translator Cascade Fix
+- **Phase:** 5.6 (API Hardening) — COMPLETE
+- **What was done:**
+  - Diagnosed OpenRouter API free-tier outages (`429 Rate Limit`, `500 Internal Server Error`, `400 Bad Request`).
+  - Modified `services/aiTranslator.js` to handle `error.status >= 400` gracefully. The cascade now aggressively skips models that crash instead of aborting the process.
+  - Confirmed the emergency fallback response (`يرجى المحاولة لاحقاً.`) kicks in correctly to protect the application from third-party AI outages.
+- **What works now:**
+  - `GET /api/market/price` responds instantly with pure math/logic (does not crash) ✅
+  - `GET /api/irrigation/recommend` correctly returns safe fallback JSON when OpenRouter crashes ✅
+  - `node tests/testOpenRouter.js` successfully connects and parses OpenRouter replies ✅
+- **Next step:** Phase 6 — Frontend (React + Vite + shadcn/ui) + Supabase DB trigger for `public.users` auto-creation
