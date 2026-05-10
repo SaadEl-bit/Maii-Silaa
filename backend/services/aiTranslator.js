@@ -112,8 +112,8 @@ async function translate(promptType, contextData, options = {}) {
         modelUsed = model;
         break; // success — stop cascade
       } catch (error) {
-        const skip = error.status === 429 || error.status === 404 ||
-                     (error.message && (error.message.includes('429') || error.message.includes('404')));
+        const skip = error.status >= 400 || 
+                     (error.message && (error.message.includes('429') || error.message.includes('404') || error.message.includes('500') || error.message.includes('400')));
         if (skip) {
           console.warn(`aiTranslator: skipping ${model} (${error.status || error.message.slice(0, 40)})`);
           continue;
