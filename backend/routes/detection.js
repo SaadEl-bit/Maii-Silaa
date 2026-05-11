@@ -78,14 +78,26 @@ router.get('/history', auth.authenticate, requireFarmer, asyncHandler(async (req
     throw error;
   }
   
-  const { data, error } = await supabase
-    .from('detections')
-    .select('*')
-    .eq('farm_id', farmId)
-    .order('created_at', { ascending: false })
-    .limit(20);
+  let data, error;
+  try {
+    const result = await supabase
+      .from('detections')
+      .select('*')
+      .eq('farm_id', farmId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    data = result.data;
+    error = result.error;
+  } catch (e) {
+    return res.json({ detections: [], count: 0 });
+  }
   
-  if (error) throw error;
+  if (error) {
+    if (error.code === '42P01') {
+      return res.json({ detections: [], count: 0 });
+    }
+    throw error;
+  }
   
   res.json({
     detections: data || [],

@@ -32,26 +32,11 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
  * Vision  — detectionService.js only, NOT used for text prompts
  */
 const MODEL_PRIORITY_LIST = [
-  // ─ TIER S ———————————————————————————─
-  'google/gemma-4-31b-it:free',               // #1 paper-best, 429 during heavy traffic
-  'nvidia/nemotron-3-super:free',             // #2 enterprise JSON, unlimited tokens
-  // ─ TIER A (BENCHMARK PROVEN) ———————————─
-  'minimax/minimax-m2.5:free',               // 🏆 Benchmark WINNER (FAO-56 math, full tables)
-  'openai/gpt-oss-120b:free',               // Benchmark #2: 6.25s, 92% conf, clean MSA
-  'openai/gpt-oss-20b:free',                // Benchmark #3: acceptable, 92% conf
-  // ─ TIER A (HIGH QUALITY, CAVEATS) ——————─
-  'tencent/hy3-preview:free',               // Unlimited tokens — returned empty in test, retry-worthy
-  'nousresearch/hermes-3-llama-3.1-405b:free', // Best MSA quality, LOW token budget
-  'meta-llama/llama-3.3-70b-instruct:free', // Strong multilingual, limited budget
-  // ─ TIER B (SOLID BACKUPS) ——————————─
-  'openrouter/owl-alpha:free',              // 1M context window, unknown Arabic quality
-  'z-ai/glm-4.5-air:free',                 // Connected, returned empty in test — worth retry
-  'qwen/qwen3-next-80b-a3b-instruct:free', // 429 in test, decent Arabic when available
-  'nvidia/nemotron-3-nano-30b-a3b:free',   // Connected, returned empty in test — worth retry
-  // ─ TIER C (EMERGENCY) ————————————─
-  'google/gemma-4-26b-a4b-it:free',        // Same family as #1, very limited tokens/week
-  'google/gemma-3-12b-it:free',            // Outdated, tiny context
-  'meta-llama/llama-3.2-3b-instruct:free', // Too small for agri + MSA + JSON together
+  "google/gemma-3-12b-it:free",
+  "openai/gpt-oss-120b:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "openai/gpt-oss-20b:free",
+  "minimax/minimax-m2.5:free"
 ];
 
 // NOTE: Vision models are managed entirely by detectionService.js (its own VISION_STACK).
@@ -89,15 +74,22 @@ function getOpenRouterClient() {
 async function translate(promptType, contextData, options = {}) {
   const { temperature = 0.1, maxTokens = 1024 } = options;
 
-  const { systemPrompt, userPrompt } = PROMPT_BUILDER[`build${capitalize(promptType)}Prompt`](contextData);
+  const fullPrompt = PROMPT_BUILDER[`build${capitalize(promptType)}Prompt`](contextData);
+  const systemPrompt = "أنت خبير زراعي ذكي. يجب أن تكون جميع إجاباتك بتنسيق JSON صالح ومطابق تماماً للمطلوب.";
+  const userPrompt = fullPrompt;
 
   let result = null;
   let modelUsed = null;
 
-  // Claude is disabled (key kept in .env for future use)
-  // if (ANTHROPIC_API_KEY) {
-  //   try { result = await callClaude(systemPrompt, userPrompt, temperature, maxTokens); } catch (e) {}
-  // }
+  // Try Claude as fallback when OpenRouter fails
+  if (!result && ANTHROPIC_API_KEY) {
+    try { 
+      result = await callClaude(systemPrompt, userPrompt, temperature, maxTokens);
+      modelUsed = 'claude-3-5-haiku-20241022';
+    } catch (e) {
+      console.warn('aiTranslator: Claude fallback failed:', e.message);
+    }
+  }
 
   // Build the cascade: env override first, then the full priority list
   const envModel = process.env.OPENROUTER_MODEL;
@@ -125,7 +117,7 @@ async function translate(promptType, contextData, options = {}) {
   }
 
   if (!result) {
-    return getFallbackResponse(promptType);
+    return getFallbackResponse(promptType, contextData);
   }
 
   return {
@@ -202,39 +194,75 @@ async function callOpenRouter(system, user, temperature, maxTokens, model) {
 }
 
 /**
- * Get fallback response when AI is unavailable
+ * Get fallback response when AI is unavailable - returns useful recommendations
  */
-function getFallbackResponse(promptType) {
+function getFallbackResponse(promptType, contextData = {}) {
   const fallbacks = {
-    irrigation: {
-      recommendation: 'يرجى المحاولة لاحقاً.',
-      explanation: 'عذراً، لم نتمكن من حساب التوصية الآن.',
-      confidence: 0.1,
-      factors: [],
-      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
-      data_sources_used: ['fallback']
+    irrigation: (ctx) => {
+      const etc = ctx?.etResult?.etc || ctx?.etc || 5;
+      const temp = ctx?.weather?.temp || 25;
+      const humidity = ctx?.weather?.humidity || 60;
+      
+      let rec = '';
+      let action = [];
+      
+      if (etc > 6) {
+        rec = 'يُنصح بالري اليوم نظراً لاحتياجات الماء العالية للمحصول.';
+        action = ['أجرِ الري في الصباح الباكر', 'استخدم نظام التنقيط لتوفير الماء', 'تحقق من رطوبة التربة قبل الري'];
+      } else if (etc > 3) {
+        rec = 'ري معتدل مطلوب اليوم.';
+        action = ['أجرِ الري في الصباح', 'انتبه لظروف الطقس'];
+      } else {
+        rec = 'لا يوجد ري ضروري اليوم.';
+        action = ['تحقق من التربة قبل الري', 'راقب الطقس'];
+      }
+      
+      return {
+        recommendation: rec,
+        explanation: `بناءً على ET₀ = ${etc.toFixed(1)} مم/يوم ودرجة الحرارة ${temp}°C ورطوبة ${humidity}%.`,
+        confidence: 0.7,
+        factors: [
+          { factor: 'et0', weight: 0.5, value: etc.toFixed(1) },
+          { factor: 'temperature', weight: 0.3, value: temp },
+          { factor: 'humidity', weight: 0.2, value: humidity }
+        ],
+        action_items: action,
+        data_sources_used: ['open_meteo', 'fao_56_fallback']
+      };
     },
-    market: {
-      recommendation: 'يرجى المحاولة لاحقاً.',
-      explanation: 'عذراً، لم نتمكن من حساب التوصية الآن.',
-      confidence: 0.1,
-      factors: [],
-      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
-      data_sources_used: ['fallback']
+    market: (ctx) => {
+      const price = ctx?.price?.current || 0;
+      const trend = ctx?.price?.trend || 'stable';
+      
+      let rec = trend === 'up' ? 'السعر في ارتفاع - يُنصح بالانتظار.' : 
+                trend === 'down' ? 'السعر منخفض - يُنصح بالبيع الآن.' : 
+                'السعر مستقر.';
+      
+      return {
+        recommendation: rec,
+        explanation: `السعر الحالي ${price} درهم. الاتجاه: ${trend}.`,
+        confidence: 0.6,
+        factors: [],
+        action_items: ['راقب الأسعار بانتظام', 'قارن بين plusieurs تجار'],
+        data_sources_used: ['price_seed_fallback']
+      };
     },
-    detection: {
-      diagnosis: 'يرجى المحاولة لاحقاً.',
+    detection: () => ({
+      diagnosis: 'تعذر التحليل - تأكد من اتصال الإنترنت وحاول مرة أخرى.',
       severity: 'unknown',
-      treatment: 'عذراً، لم نتمكن من التشخيص الآن.',
+      treatment: 'حاول رفع صورة أوضح مع إضاءة جيدة.',
       confidence: 0.1,
       visualSignals: [],
-      action_items: ['تحقق من الاتصال وحاول مرة أخرى.'],
+      action_items: ['تحقق من جودة الصورة', 'حاول في إضاءة أفضل'],
       data_sources_used: ['fallback']
-    }
+    })
   };
   
+  const fallbackFn = fallbacks[promptType] || fallbacks.irrigation;
+  const result = typeof fallbackFn === 'function' ? fallbackFn(contextData) : fallbackFn;
+  
   return {
-    ...fallbacks[promptType] || fallbacks.irrigation,
+    ...result,
     model: 'fallback',
     isFallback: true
   };

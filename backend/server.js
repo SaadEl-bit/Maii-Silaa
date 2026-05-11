@@ -51,9 +51,33 @@ app.use('/api/marketplace', limiters.standard);
 app.use('/api/community', limiters.standard);
 app.use('/api/notifications', limiters.standard);
 
-// CORS
+// CORS — allow specific origins + dev origins
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  // Add deploy URLs here, e.g.:
+  // 'https://filaha.netlify.app',
+];
+
+function isOriginAllowed(origin) {
+  // Explicit whitelist
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  // Allow null origin (file:// protocol) for local development
+  if (origin === 'null') return true;
+  // Allow any localhost:PORT during development
+  if (origin && /^https?:\/\/localhost(:\d+)?$/.test(origin)) return true;
+  if (origin && /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) return true;
+  return false;
+}
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (origin && isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') {

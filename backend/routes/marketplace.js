@@ -97,7 +97,6 @@ router.get(
   asyncHandler(async (req, res) => {
     const {
       crop,
-      country,
       minPrice,
       maxPrice,
       page = 1,
@@ -108,7 +107,7 @@ router.get(
 
     let query = supabase
       .from('listings')
-      .select('*, farms(location_label, country_code)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .range(offset, offset + parseInt(limit) - 1);
@@ -116,11 +115,14 @@ router.get(
     if (crop) query = query.ilike('crop_type', `%${crop}%`);
     if (minPrice) query = query.gte('price_per_kg', parseFloat(minPrice));
     if (maxPrice) query = query.lte('price_per_kg', parseFloat(maxPrice));
-    if (country) query = query.eq('farms.country_code', country);
 
     const { data, error, count } = await query;
 
     if (error) {
+      // If table doesn't exist, return empty gracefully
+      if (error.code === '42P01') {
+        return res.json({ listings: [], total: 0, page: parseInt(page), limit: parseInt(limit) });
+      }
       return res.status(500).json({
         error: 'خطأ في جلب الإعلانات',
         message: error.message
@@ -173,13 +175,23 @@ router.get(
   asyncHandler(async (req, res) => {
     const farmerId = req.user.sub || req.user.id;
 
-    const { data, error } = await supabase
-      .from('listings')
-      .select('*, offers(id, status, offered_price, distributor_id)')
-      .eq('farmer_id', farmerId)
-      .order('created_at', { ascending: false });
+    let data, error;
+    try {
+      const result = await supabase
+        .from('listings')
+        .select('*, offers(id, status, offered_price, distributor_id)')
+        .eq('farmer_id', farmerId)
+        .order('created_at', { ascending: false });
+      data = result.data;
+      error = result.error;
+    } catch (e) {
+      return res.json({ listings: [], count: 0 });
+    }
 
     if (error) {
+      if (error.code === '42P01') {
+        return res.json({ listings: [], count: 0 });
+      }
       return res.status(500).json({
         error: 'خطأ في جلب إعلاناتك',
         message: error.message

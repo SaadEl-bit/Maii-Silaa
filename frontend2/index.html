@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فلاحة — Filaha</title>
+  <style>
+    :root {
+      --primary: #2d7d32;
+      --primary-light: #3f8e44;
+      --primary-dark: #1b5e20;
+      --accent: #e8a23b;
+      --accent-light: #f0b855;
+      --bg: #f0f4f0;
+      --bg-card: #ffffff;
+      --bg-sidebar: #1a2e1a;
+      --text: #1a1a2e;
+      --text-light: #6b7280;
+      --text-white: #f0f4f0;
+      --border: #d1d5db;
+      --danger: #b5402f;
+      --danger-light: #fce4e0;
+      --success: #2d7d32;
+      --success-light: #e0f4e0;
+      --warning: #d97706;
+      --warning-light: #fff3e0;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ─── SPLASH SCREEN ─── */
+    #splash-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: white; text-align: center; padding: 20px;
+      transition: opacity 0.5s, transform 0.5s;
+    }
+    #splash-screen.hidden { opacity: 0; transform: scale(1.1); pointer-events: none; }
+    #splash-screen .logo { font-size: 64px; margin-bottom: 16px; }
+    #splash-screen h1 { font-size: 36px; font-weight: 700; margin-bottom: 4px; }
+    #splash-screen p { font-size: 16px; opacity: 0.85; margin-bottom: 32px; }
+    .splash-lang-btn {
+      background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
+      color: white; padding: 14px 40px; border-radius: var(--radius);
+      font-size: 18px; cursor: pointer; margin: 6px; min-width: 180px;
+      transition: all 0.3s;
+    }
+    .splash-lang-btn:hover { background: rgba(255,255,255,0.25); border-color: white; transform: translateY(-2px); }
+
+    /* ─── APP LAYOUT ─── */
+    #app { display: none; }
+    #app.visible { display: flex; min-height: 100vh; }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 260px; background: var(--bg-sidebar); color: var(--text-white);
+      display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; z-index: 100;
+      transition: transform 0.3s;
+    }
+    [dir="rtl"] .sidebar { right: 0; left: auto; }
+    [dir="ltr"] .sidebar { left: 0; right: auto; }
+    .sidebar-header {
+      padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar-header .logo-icon { font-size: 32px; }
+    .sidebar-header h2 { font-size: 20px; font-weight: 700; }
+    .sidebar-header span { font-size: 11px; opacity: 0.6; display: block; }
+    .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+      cursor: pointer; transition: all 0.2s; border-right: 3px solid transparent;
+      font-size: 14px; color: rgba(255,255,255,0.7);
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active {
+      background: rgba(255,255,255,0.1); color: white; border-right-color: var(--accent);
+    }
+    .nav-item .icon { font-size: 20px; width: 28px; text-align: center; }
+    .nav-item .badge {
+      background: var(--accent); color: #1a1a2e; padding: 1px 8px;
+      border-radius: 10px; font-size: 11px; margin-right: auto;
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    .main-content {
+      flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    }
+    [dir="rtl"] .main-content { margin-right: 260px; }
+    [dir="ltr"] .main-content { margin-left: 260px; }
+    .topbar {
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 12px 24px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50; gap: 16px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .menu-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 4px; }
+    .topbar-title { font-size: 18px; font-weight: 600; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-right .notif-btn {
+      background: none; border: none; font-size: 22px; cursor: pointer;
+      position: relative; padding: 4px; color: var(--text);
+    }
+    .topbar-right .notif-btn .notif-dot {
+      position: absolute; top: 0; right: 0; width: 8px; height: 8px;
+      background: var(--danger); border-radius: 50%; border: 2px solid white;
+    }
+    .account-btn {
+      display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      cursor: pointer; background: white; font-size: 14px; transition: all 0.2s;
+      position: relative;
+    }
+    .account-btn:hover { border-color: var(--primary); }
+    .account-btn .avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 14px;
+    }
+    .account-dropdown {
+      position: absolute; top: 100%; left: 0; margin-top: 4px;
+      background: white; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg); min-width: 200px; z-index: 200;
+      display: none; overflow: hidden;
+    }
+    .account-dropdown.open { display: block; }
+    .account-dropdown .dd-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: 13px;
+    }
+    .account-dropdown .dd-header span { display: block; font-weight: 400; font-size: 12px; color: var(--text-light); }
+    .account-dropdown .dd-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+      cursor: pointer; font-size: 13px; transition: background 0.15s;
+    }
+    .account-dropdown .dd-item:hover { background: var(--bg); }
+    .account-dropdown .dd-item.logout-btn { color: var(--danger); border-top: 1px solid var(--border); }
+    .account-dropdown .dd-item.logout-btn:hover { background: var(--danger-light); }
+
+    /* ─── PAGE CONTENT ─── */
+    .page-content { flex: 1; padding: 24px; overflow-y: auto; }
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── CARDS ─── */
+    .card { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .card-header h3 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .stat-card {
+      background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 16px; display: flex; align-items: center; gap: 14px;
+    }
+    .stat-card .stat-icon { font-size: 28px; }
+    .stat-card .stat-info h4 { font-size: 22px; font-weight: 700; }
+    .stat-card .stat-info p { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+    /* ─── FORMS ─── */
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: var(--text-light); }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 14px; background: white;
+      transition: border-color 0.2s; font-family: inherit;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(45,125,50,0.1);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      padding: 10px 20px; border: none; border-radius: var(--radius-sm); font-size: 14px;
+      font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex;
+      align-items: center; gap: 6px; font-family: inherit;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-accent { background: var(--accent); color: #1a1a2e; }
+    .btn-accent:hover:not(:disabled) { background: var(--accent-light); transform: translateY(-1px); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover:not(:disabled) { background: #933322; transform: translateY(-1px); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-warning { background: var(--warning); color: white; }
+
+    /* ─── TABLES ─── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-light); font-size: 12px; text-transform: uppercase; white-space: nowrap; }
+    tr:hover td { background: rgba(0,0,0,0.02); }
+
+    /* ─── BADGES ─── */
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+    .badge-success { background: var(--success-light); color: var(--success); }
+    .badge-danger { background: var(--danger-light); color: var(--danger); }
+    .badge-warning { background: var(--warning-light); color: var(--warning); }
+    .badge-info { background: #e0f0ff; color: #1a73e8; }
+
+    /* ─── ALERT / TOAST ─── */
+    .toast-container {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      padding: 12px 20px; border-radius: var(--radius-sm); background: #333;
+      color: white; font-size: 13px; box-shadow: var(--shadow-lg);
+      animation: slideUp 0.3s ease; min-width: 280px; text-align: center;
+    }
+    .toast.success { background: var(--primary); }
+    .toast.error { background: var(--danger); }
+    .toast.warning { background: var(--warning); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white; border-radius: var(--radius); box-shadow: var(--shadow-lg);
+      width: 100%; max-width: 520px; max-height: 80vh; overflow-y: auto;
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-size: 16px; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-light); padding: 4px; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      [dir="rtl"] .sidebar { transform: translateX(100%); }
+      [dir="rtl"] .sidebar.open { transform: translateX(0); }
+      [dir="ltr"] .sidebar { transform: translateX(-100%); }
+      [dir="ltr"] .sidebar.open { transform: translateX(0); }
+      .main-content { margin-right: 0 !important; margin-left: 0 !important; }
+      .menu-toggle { display: block; }
+      .topbar { padding: 10px 16px; }
+      .page-content { padding: 16px; }
+      .form-row { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ─── LOADING ─── */
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── ALERT CARD ─── */
+    .alert-card { display: flex; gap: 12px; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 10px; align-items: flex-start; }
+    .alert-card .alert-icon { font-size: 24px; flex-shrink: 0; }
+    .alert-card .alert-body { flex: 1; }
+    .alert-card .alert-body h4 { font-size: 14px; margin-bottom: 4px; }
+    .alert-card .alert-body p { font-size: 12px; color: var(--text-light); }
+    .alert-card .alert-actions { display: flex; gap: 6px; margin-top: 8px; }
+
+    /* ─── LISTING CARD ─── */
+    .listing-card { display: flex; gap: 14px; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 10px; }
+    .listing-card .listing-icon { font-size: 28px; flex-shrink: 0; }
+    .listing-card .listing-body { flex: 1; }
+    .listing-card .listing-body h4 { font-size: 14px; margin-bottom: 2px; }
+    .listing-card .listing-body .meta { font-size: 12px; color: var(--text-light); display: flex; gap: 12px; flex-wrap: wrap; }
+    .listing-card .listing-price { font-size: 18px; font-weight: 700; color: var(--primary); white-space: nowrap; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h4 { font-size: 16px; margin-bottom: 4px; color: var(--text); }
+    .empty-state p { font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<!-- ─── SPLASH SCREEN ─── -->
+<div id="splash-screen">
+  <div class="logo">🌾</div>
+  <h1>فلاحة</h1>
+  <p>الذكاء الزراعي الأفريقي</p>
+  <div>
+    <button class="splash-lang-btn" onclick="setLang('ar')">العربية</button>
+    <button class="splash-lang-btn" onclick="setLang('fr')">Français</button>
+    <button class="splash-lang-btn" onclick="setLang('en')">English</button>
+  </div>
+</div>
+
+<!-- ─── TOAST CONTAINER ─── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ─── MODAL ─── -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Modal</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- ─── APP ─── -->
+<div id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="logo-icon">🌾</span>
+      <div>
+        <h2>فلاحة</h2>
+        <span>Filaha</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <div class="nav-item active" onclick="navigateTo('dashboard')">
+        <span class="icon">📊</span> <span data-i18n="nav.dashboard">لوحة التحكم</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('irrigation')">
+        <span class="icon">💧</span> <span data-i18n="nav.irrigation">الري الذكي</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('market')">
+        <span class="icon">🏪</span> <span data-i18n="nav.market">السوق</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('marketplace')">
+        <span class="icon">📦</span> <span data-i18n="nav.marketplace">المتجر</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('detection')">
+        <span class="icon">🔬</span> <span data-i18n="nav.detection">تشخيص المحاصيل</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('community')">
+        <span class="icon">🌍</span> <span data-i18n="nav.community">المجتمع</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('notifications')">
+        <span class="icon">🔔</span> <span data-i18n="nav.notifications">الإشعارات</span>
+        <span class="badge" id="notif-sidebar-badge" style="display:none">0</span>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <span class="topbar-title" id="topbar-title">لوحة التحكم</span>
+      </div>
+      <div class="topbar-right">
+        <button class="notif-btn" onclick="navigateTo('notifications')" title="الإشعارات">
+          🔔
+          <span class="notif-dot" id="notif-dot" style="display:none"></span>
+        </button>
+        <div class="account-btn" onclick="toggleDropdown(event)">
+          <div class="avatar" id="account-avatar">م</div>
+          <span id="account-name">المستخدم</span>
+          <span style="font-size:10px">▼</span>
+          <div class="account-dropdown" id="account-dropdown">
+            <div class="dd-header">
+              <span id="dd-name">المستخدم</span>
+              <span id="dd-role">مزارع</span>
+            </div>
+            <div class="dd-item" onclick="navigateTo('dashboard')">📊 لوحة التحكم</div>
+            <div class="dd-item logout-btn" onclick="handleLogout()">🚪 تسجيل الخروج</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+      <!-- Dashboard -->
+      <div class="page active" id="page-dashboard"></div>
+      <!-- Irrigation -->
+      <div class="page" id="page-irrigation"></div>
+      <!-- Market -->
+      <div class="page" id="page-market"></div>
+      <!-- Marketplace -->
+      <div class="page" id="page-marketplace"></div>
+      <!-- Detection -->
+      <div class="page" id="page-detection"></div>
+      <!-- Community -->
+      <div class="page" id="page-community"></div>
+      <!-- Notifications -->
+      <div class="page" id="page-notifications"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ──────────────────────────────────────────────────────────
+const STATE = { user: null, token: null, lang: 'ar', notifCount: 0 };
+
+// ─── I18N ──────────────────────────────────────────────────────────
+const I18N = {
+  ar: {
+    'nav.dashboard': 'لوحة التحكم', 'nav.irrigation': 'الري الذكي', 'nav.market': 'السوق',
+    'nav.marketplace': 'المتجر', 'nav.detection': 'تشخيص المحاصيل', 'nav.community': 'المجتمع',
+    'nav.notifications': 'الإشعارات',
+    'dashboard.title': 'لوحة التحكم', 'dashboard.welcome': 'مرحباً بك في فلاحة',
+    'dashboard.stats.irrigation': 'توصيات الري', 'dashboard.stats.listings': 'المنتجات', 'dashboard.stats.alerts': 'التنبيهات', 'dashboard.stats.saved': 'لتر مياه موفرة',
+    'irrigation.title': 'توصية الري', 'irrigation.lat': 'خط العرض', 'irrigation.lng': 'خط الطول', 'irrigation.crop': 'المحصول', 'irrigation.days': 'الأيام بعد الزراعة',
+    'irrigation.get': 'احصل على التوصية', 'irrigation.history': 'السجل', 'irrigation.log': 'تسجيل',
+    'market.title': 'أسعار السوق', 'market.crop': 'المحصول', 'market.country': 'البلد', 'market.price': 'السعر', 'market.trend': 'الاتجاه', 'market.best': 'أفضل سعر',
+    'marketplace.title': 'المتجر', 'marketplace.listings': 'المنتجات', 'marketplace.create': 'إضافة منتج',
+    'marketplace.crop': 'المحصول', 'marketplace.qty': 'الكمية (كغ)', 'marketplace.price_kg': 'السعر للكيلو', 'marketplace.location': 'الموقع',
+    'marketplace.quality': 'الجودة', 'marketplace.notes': 'ملاحظات', 'marketplace.submit': 'نشر المنتج',
+    'marketplace.offers': 'العروض', 'marketplace.send_offer': 'إرسال عرض',
+    'detection.title': 'تشخيص المحاصيل', 'detection.url': 'رابط الصورة', 'detection.crop': 'المحصول (اختياري)', 'detection.analyze': 'تحليل',
+    'community.title': 'تنبيهات المجتمع', 'community.alerts': 'التنبيهات', 'community.lat': 'خط العرض', 'community.lng': 'خط الطول',
+    'community.radius': 'نطاق البحث (كم)', 'community.get': 'عرض التنبيهات', 'community.farmers': 'المزارعون القريبون',
+    'community.confirm': 'تأكيد', 'community.dismiss': 'رفض', 'community.verified': 'تم تأكيد التنبيه',
+    'notifications.title': 'الإشعارات', 'notifications.empty': 'لا توجد إشعارات', 'notifications.mark_read': 'تحديد الكل كمقروء',
+    'common.loading': 'جاري التحميل...', 'common.error': 'خطأ', 'common.success': 'تم بنجاح',
+    'auth.logout': 'تسجيل الخروج', 'auth.logged_in': 'مسجل الدخول',
+  },
+  fr: {
+    'nav.dashboard': 'Tableau de bord', 'nav.irrigation': 'Irrigation', 'nav.market': 'Marché',
+    'nav.marketplace': 'Boutique', 'nav.detection': 'Diagnostic', 'nav.community': 'Communauté',
+    'nav.notifications': 'Notifications',
+    'dashboard.title': 'Tableau de bord', 'dashboard.welcome': 'Bienvenue sur Filaha',
+    'dashboard.stats.irrigation': 'Recommandations', 'dashboard.stats.listings': 'Annonces', 'dashboard.stats.alerts': 'Alertes', 'dashboard.stats.saved': 'Litres économisés',
+    'irrigation.title': 'Recommandation d\'irrigation', 'irrigation.lat': 'Latitude', 'irrigation.lng': 'Longitude', 'irrigation.crop': 'Culture', 'irrigation.days': 'Jours après semis',
+    'irrigation.get': 'Obtenir la recommandation', 'irrigation.history': 'Historique', 'irrigation.log': 'Enregistrer',
+    'market.title': 'Prix du marché', 'market.crop': 'Culture', 'market.country': 'Pays', 'market.price': 'Prix', 'market.trend': 'Tendance', 'market.best': 'Meilleur prix',
+    'marketplace.title': 'Boutique', 'marketplace.listings': 'Annonces', 'marketplace.create': 'Ajouter une annonce',
+    'marketplace.crop': 'Culture', 'marketplace.qty': 'Quantité (kg)', 'marketplace.price_kg': 'Prix/kg', 'marketplace.location': 'Localisation',
+    'marketplace.quality': 'Qualité', 'marketplace.notes': 'Notes', 'marketplace.submit': 'Publier',
+    'marketplace.offers': 'Offres', 'marketplace.send_offer': 'Envoyer une offre',
+    'detection.title': 'Diagnostic des cultures', 'detection.url': 'URL de la photo', 'detection.crop': 'Culture (optionnel)', 'detection.analyze': 'Analyser',
+    'community.title': 'Alertes communautaires', 'community.alerts': 'Alertes', 'community.lat': 'Latitude', 'community.lng': 'Longitude',
+    'community.radius': 'Rayon (km)', 'community.get': 'Voir les alertes', 'community.farmers': 'Agriculteurs proches',
+    'community.confirm': 'Confirmer', 'community.dismiss': 'Ignorer', 'community.verified': 'Alerte confirmée',
+    'notifications.title': 'Notifications', 'notifications.empty': 'Aucune notification', 'notifications.mark_read': 'Tout marquer lu',
+    'common.loading': 'Chargement...', 'common.error': 'Erreur', 'common.success': 'Succès',
+    'auth.logout': 'Déconnexion', 'auth.logged_in': 'Connecté',
+  },
+  en: {
+    'nav.dashboard': 'Dashboard', 'nav.irrigation': 'Smart Irrigation', 'nav.market': 'Market',
+    'nav.marketplace': 'Marketplace', 'nav.detection': 'Crop Diagnosis', 'nav.community': 'Community',
+    'nav.notifications': 'Notifications',
+    'dashboard.title': 'Dashboard', 'dashboard.welcome': 'Welcome to Filaha',
+    'dashboard.stats.irrigation': 'Irrigation Tips', 'dashboard.stats.listings': 'Listings', 'dashboard.stats.alerts': 'Alerts', 'dashboard.stats.saved': 'Liters Saved',
+    'irrigation.title': 'Irrigation Recommendation', 'irrigation.lat': 'Latitude', 'irrigation.lng': 'Longitude', 'irrigation.crop': 'Crop', 'irrigation.days': 'Days after planting',
+    'irrigation.get': 'Get Recommendation', 'irrigation.history': 'History', 'irrigation.log': 'Log',
+    'market.title': 'Market Prices', 'market.crop': 'Crop', 'market.country': 'Country', 'market.price': 'Price', 'market.trend': 'Trend', 'market.best': 'Best Price',
+    'marketplace.title': 'Marketplace', 'marketplace.listings': 'Listings', 'marketplace.create': 'Add Listing',
+    'marketplace.crop': 'Crop', 'marketplace.qty': 'Quantity (kg)', 'marketplace.price_kg': 'Price/kg', 'marketplace.location': 'Location',
+    'marketplace.quality': 'Quality', 'marketplace.notes': 'Notes', 'marketplace.submit': 'Publish Listing',
+    'marketplace.offers': 'Offers', 'marketplace.send_offer': 'Send Offer',
+    'detection.title': 'Crop Diagnosis', 'detection.url': 'Photo URL', 'detection.crop': 'Crop (optional)', 'detection.analyze': 'Analyze',
+    'community.title': 'Community Alerts', 'community.alerts': 'Alerts', 'community.lat': 'Latitude', 'community.lng': 'Longitude',
+    'community.radius': 'Radius (km)', 'community.get': 'View Alerts', 'community.farmers': 'Nearby Farmers',
+    'community.confirm': 'Confirm', 'community.dismiss': 'Dismiss', 'community.verified': 'Alert confirmed',
+    'notifications.title': 'Notifications', 'notifications.empty': 'No notifications', 'notifications.mark_read': 'Mark All Read',
+    'common.loading': 'Loading...', 'common.error': 'Error', 'common.success': 'Success',
+    'auth.logout': 'Logout', 'auth.logged_in': 'Logged in',
+  }
+};
+function t(key) { return I18N[STATE.lang]?.[key] || key; }
+
+// ─── TOAST ──────────────────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+// ─── MODAL ──────────────────────────────────────────────────────────
+function openModal(title, bodyHtml, footerHtml = '') {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-footer').innerHTML = footerHtml;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+// ─── LANGUAGE ───────────────────────────────────────────────────────
+function setLang(lang) {
+  STATE.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  document.getElementById('splash-screen').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  setTimeout(refreshUI, 100);
+  checkSession();
+}
+
+// ─── SIDEBAR ────────────────────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ─── ACCOUNT DROPDOWN ───────────────────────────────────────────────
+function toggleDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('account-dropdown').classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  document.getElementById('account-dropdown').classList.remove('open');
+});
+
+// ─── API ────────────────────────────────────────────────────────────
+const API_BASE = 'http://localhost:3000';
+
+async function api(endpoint, options = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (STATE.token) headers['Authorization'] = `Bearer ${STATE.token}`;
+  try {
+    const res = await fetch(API_BASE + endpoint, { ...options, headers });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
+    return data;
+  } catch (error) {
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      throw new Error('تعذر الاتصال بالخادم. تأكد من تشغيل الخادم على port 3000 \n(Failed to connect. Make sure backend is running on port 3000)');
+    }
+    throw error;
+  }
+}
+
+// ─── SESSION ────────────────────────────────────────────────────────
+function checkSession() {
+  const stored = localStorage.getItem('filaha_session');
+  if (stored) {
+    const s = JSON.parse(stored);
+    STATE.token = s.token;
+    STATE.user = s.user;
+    refreshUI();
+    loadDashboard();
+    loadNotificationsCount();
+  } else {
+    showAuthScreen();
+  }
+}
+
+function saveSession(token, user) {
+  STATE.token = token;
+  STATE.user = user;
+  localStorage.setItem('filaha_session', JSON.stringify({ token, user }));
+  refreshUI();
+  loadDashboard();
+  loadNotificationsCount();
+}
+
+function clearSession() {
+  STATE.token = null;
+  STATE.user = null;
+  localStorage.removeItem('filaha_session');
+  refreshUI();
+}
+
+// ─── AUTH SCREEN ────────────────────────────────────────────────────
+function showAuthScreen() {
+  const dashPage = document.getElementById('page-dashboard');
+  dashPage.innerHTML = `
+    <div style="max-width:420px;margin:40px auto">
+      <div class="card" style="padding:32px">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:48px">🌾</div>
+          <h2 style="margin-top:8px">${t('dashboard.welcome')}</h2>
+        </div>
+        <div class="form-group">
+          <label>${t('market.country') === 'البلد' ? 'البريد الإلكتروني أو رقم الهاتف' : 'Email or Phone'}</label>
+          <input type="text" id="login-identifier" placeholder="+212612345678 ou email@example.com">
+        </div>
+        <div class="form-group">
+          <label>${t('auth.logout') === 'تسجيل الخروج' ? 'كلمة المرور' : 'Password'}</label>
+          <input type="password" id="login-password" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="handleLogin()">${t('nav.dashboard') === 'لوحة التحكم' ? 'دخول' : 'Login'}</button>
+        <div style="margin-top:16px;text-align:center;font-size:13px;color:var(--text-light)">
+          <a href="#" onclick="showRegisterFarmer(event)">${t('marketplace.create') === 'إضافة منتج' ? 'إنشاء حساب مزارع' : 'Register as Farmer'}</a>
+          &nbsp;|&nbsp;
+          <a href="#" onclick="showRegisterDistributor(event)">${t('marketplace.create') === 'إضافة منتج' ? 'إنشاء حساب موزع' : 'Register as Distributor'}</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function showRegisterFarmer(e) {
+  e.preventDefault();
+  const dashPage = document.getElementById('page-dashboard');
+  dashPage.innerHTML = `
+    <div style="max-width:420px;margin:40px auto">
+      <div class="card" style="padding:32px">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:48px">👨‍🌾</div>
+          <h2 style="margin-top:8px">${t('marketplace.create') === 'إضافة منتج' ? 'تسجيل مزارع' : 'Farmer Registration'}</h2>
+        </div>
+        <div class="form-group"><label>${t('auth.logout') === 'تسجيل الخروج' ? 'الاسم الكامل' : 'Full Name'}</label><input type="text" id="reg-name"></div>
+        <div class="form-group"><label>${t('auth.logout') === 'تسجيل الخروج' ? 'رقم الهاتف' : 'Phone'}</label><input type="text" id="reg-phone" placeholder="+2126xxxxxxx"></div>
+        <div class="form-group"><label>${t('auth.logout') === 'تسجيل الخروج' ? 'كلمة المرور' : 'Password'}</label><input type="password" id="reg-password"></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="handleRegisterFarmer()">${t('marketplace.submit') === 'نشر المنتج' ? 'تسجيل' : 'Register'}</button>
+        <div style="margin-top:12px;text-align:center;font-size:13px"><a href="#" onclick="showAuthScreen();return false">← ${t('auth.logout') === 'تسجيل الخروج' ? 'رجوع' : 'Back'}</a></div>
+      </div>
+    </div>`;
+}
+
+function showRegisterDistributor(e) {
+  e.preventDefault();
+  const dashPage = document.getElementById('page-dashboard');
+  dashPage.innerHTML = `
+    <div style="max-width:420px;margin:40px auto">
+      <div class="card" style="padding:32px">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:48px">🏢</div>
+          <h2 style="margin-top:8px">${t('marketplace.create') === 'إضافة منتج' ? 'تسجيل موزع' : 'Distributor Registration'}</h2>
+        </div>
+        <div class="form-group"><label>${t('auth.logout') === 'تسجيل الخروج' ? 'اسم الشركة' : 'Company Name'}</label><input type="text" id="reg-name"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="reg-email"></div>
+        <div class="form-group"><label>${t('auth.logout') === 'تسجيل الخروج' ? 'كلمة المرور' : 'Password'}</label><input type="password" id="reg-password"></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="handleRegisterDistributor()">${t('marketplace.submit') === 'نشر المنتج' ? 'تسجيل' : 'Register'}</button>
+        <div style="margin-top:12px;text-align:center;font-size:13px"><a href="#" onclick="showAuthScreen();return false">← ${t('auth.logout') === 'تسجيل الخروج' ? 'رجوع' : 'Back'}</a></div>
+      </div>
+    </div>`;
+}
+
+async function handleLogin() {
+  const identifier = document.getElementById('login-identifier').value;
+  const password = document.getElementById('login-password').value;
+  if (!identifier || !password) { toast('Fill in all fields', 'error'); return; }
+  try {
+    const isPhone = identifier.startsWith('+') || /^\d/.test(identifier);
+    const body = isPhone ? { phone: identifier, password } : { email: identifier, password };
+    const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify(body) });
+    saveSession(data.access_token, data.user);
+    loadDashboard();
+    toast(t('common.success'));
+  } catch (err) { toast(err.message, 'error'); }
+}
+
+async function handleRegisterFarmer() {
+  const name = document.getElementById('reg-name').value;
+  const phone = document.getElementById('reg-phone').value;
+  const password = document.getElementById('reg-password').value;
+  if (!name || !phone || !password) { toast('Fill in all fields', 'error'); return; }
+  try {
+    await api('/api/auth/register/farmer', { method: 'POST', body: JSON.stringify({ phone, password, name }) });
+    toast('Account created. Please login.');
+    showAuthScreen();
+  } catch (err) { toast(err.message, 'error'); }
+}
+
+async function handleRegisterDistributor() {
+  const name = document.getElementById('reg-name').value;
+  const email = document.getElementById('reg-email').value;
+  const password = document.getElementById('reg-password').value;
+  if (!name || !email || !password) { toast('Fill in all fields', 'error'); return; }
+  try {
+    await api('/api/auth/register/distributor', { method: 'POST', body: JSON.stringify({ email, password, name }) });
+    toast('Account created. Please login.');
+    showAuthScreen();
+  } catch (err) { toast(err.message, 'error'); }
+}
+
+function handleLogout() {
+  if (STATE.token) {
+    api('/api/auth/logout', { method: 'POST' }).catch(() => {});
+  }
+  clearSession();
+  toast(t('auth.logout') === 'تسجيل الخروج' ? 'تم تسجيل الخروج' : 'Logged out');
+  showAuthScreen();
+}
+
+// ─── NAVIGATION ─────────────────────────────────────────────────────
+function navigateTo(page) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navItems = document.querySelectorAll('.nav-item');
+  const idx = ['dashboard','irrigation','market','marketplace','detection','community','notifications'].indexOf(page);
+  if (navItems[idx]) navItems[idx].classList.add('active');
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+
+  const titles = {
+    dashboard: t('dashboard.title'), irrigation: t('irrigation.title'), market: t('market.title'),
+    marketplace: t('marketplace.title'), detection: t('detection.title'), community: t('community.title'),
+    notifications: t('notifications.title')
+  };
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+
+  if (page === 'dashboard') loadDashboard();
+  else if (page === 'irrigation') loadIrrigation();
+  else if (page === 'market') loadMarket();
+  else if (page === 'marketplace') loadMarketplace();
+  else if (page === 'detection') loadDetection();
+  else if (page === 'community') loadCommunity();
+  else if (page === 'notifications') loadNotifications();
+
+  if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+}
+
+// ─── REFRESH UI ─────────────────────────────────────────────────────
+function refreshUI() {
+  const isLoggedIn = !!STATE.token;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[STATE.lang]?.[key]) el.textContent = I18N[STATE.lang][key];
+  });
+
+  if (isLoggedIn && STATE.user) {
+    const name = STATE.user.name || STATE.user.email || STATE.user.phone || 'User';
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('account-avatar').textContent = initial;
+    document.getElementById('account-name').textContent = name.length > 12 ? name.substring(0, 10) + '…' : name;
+    document.getElementById('dd-name').textContent = name;
+    document.getElementById('dd-role').textContent = STATE.user.role || 'user';
+  } else {
+    document.getElementById('account-avatar').textContent = '?';
+    document.getElementById('account-name').textContent = t('common.loading');
+  }
+}
+
+// ─── DASHBOARD ──────────────────────────────────────────────────────
+async function loadDashboard() {
+  const el = document.getElementById('page-dashboard');
+  if (!STATE.token) { showAuthScreen(); return; }
+
+  el.innerHTML = `<div style="text-align:center;padding:40px"><div class="spinner"></div><p style="margin-top:12px;color:var(--text-light)">${t('common.loading')}</p></div>`;
+
+  try {
+    let listings = [], alerts = [];
+    try { const l = await api('/api/marketplace/listings/my'); listings = l.listings || []; } catch(e) {}
+    try { const a = await api('/api/community/alerts?lat=30.42&lng=-9.60&radius=15'); alerts = a.alerts || []; } catch(e) {}
+
+    el.innerHTML = `
+      <h2 style="margin-bottom:20px">${t('dashboard.welcome')}</h2>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">💧</div><div class="stat-info"><h4>3</h4><p>${t('dashboard.stats.irrigation')}</p></div></div>
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-info"><h4>${listings.length}</h4><p>${t('dashboard.stats.listings')}</p></div></div>
+        <div class="stat-card"><div class="stat-icon">🌍</div><div class="stat-info"><h4>${alerts.length}</h4><p>${t('dashboard.stats.alerts')}</p></div></div>
+        <div class="stat-card"><div class="stat-icon">💧</div><div class="stat-info"><h4>1,250</h4><p>${t('dashboard.stats.saved')}</p></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-header"><h3>📦 ${t('marketplace.listings')}</h3><button class="btn btn-sm btn-primary" onclick="navigateTo('marketplace')">${t('marketplace.create')}</button></div>
+          ${listings.length === 0 ? `<div class="empty-state"><p>${t('marketplace.create') === 'إضافة منتج' ? 'لا توجد منتجات بعد' : 'No listings yet'}</p></div>` : listings.slice(0,3).map(l => `<div class="listing-card"><div class="listing-icon">🌾</div><div class="listing-body"><h4>${l.crop_type}</h4><div class="meta">${l.quantity_kg}kg</div></div><div class="listing-price">${l.price_per_kg} ${l.currency||'MAD'}</div></div>`).join('')}
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>🌍 ${t('community.alerts')}</h3><button class="btn btn-sm btn-accent" onclick="navigateTo('community')">${t('community.alerts') === 'التنبيهات' ? 'عرض الكل' : 'View All'}</button></div>
+          ${alerts.length === 0 ? `<div class="empty-state"><p>${t('common.loading') === 'جاري التحميل...' ? 'لا توجد تنبيهات' : 'No alerts nearby'}</p></div>` : alerts.slice(0,3).map(a => `<div class="alert-card"><div class="alert-icon">${a.severity === 'high' ? '🔴' : a.severity === 'medium' ? '🟡' : '🟢'}</div><div class="alert-body"><h4>${a.crop_type || 'Crop'}</h4><p>${a.alert_type} - ${a.severity}</p></div></div>`).join('')}
+        </div>
+      </div>`;
+  } catch (err) {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--danger)"><p>${t('common.error')}: ${err.message}</p></div>`;
+  }
+}
+
+// ─── IRRIGATION ─────────────────────────────────────────────────────
+function loadIrrigation() {
+  const el = document.getElementById('page-irrigation');
+  el.innerHTML = `
+    <h2 style="margin-bottom:16px">💧 ${t('irrigation.title')}</h2>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>${t('irrigation.lat')}</label><input type="number" id="irr-lat" value="30.42" step="0.01"></div>
+        <div class="form-group"><label>${t('irrigation.lng')}</label><input type="number" id="irr-lng" value="-9.60" step="0.01"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>${t('irrigation.crop')}</label><input type="text" id="irr-crop" value="wheat"></div>
+        <div class="form-group"><label>${t('irrigation.days')}</label><input type="number" id="irr-days" value="30"></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-primary" onclick="getIrrigation()">${t('irrigation.get')}</button>
+        <button class="btn btn-outline" onclick="getIrrigationHistory()">${t('irrigation.history')}</button>
+      </div>
+    </div>
+    <div class="card"><div class="card-header"><h3>${t('irrigation.title')}</h3></div><div id="irr-result" style="font-size:13px;color:var(--text-light)">${t('common.loading') === 'جاري التحميل...' ? 'نتائج ستظهر هنا' : 'Results will appear here'}</div></div>`;
+}
+
+async function getIrrigation() {
+  const lat = document.getElementById('irr-lat').value;
+  const lng = document.getElementById('irr-lng').value;
+  const crop = document.getElementById('irr-crop').value;
+  const days = document.getElementById('irr-days').value;
+  const el = document.getElementById('irr-result');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api(`/api/irrigation/recommend?lat=${lat}&lng=${lng}&crop=${crop}&daysAfterPlanting=${days}`);
+    el.innerHTML = `<pre style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);font-size:12px;overflow-x:auto">${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) { el.innerHTML = `<span style="color:var(--danger)">${t('common.error')}: ${err.message}</span>`; }
+}
+
+async function getIrrigationHistory() {
+  const el = document.getElementById('irr-result');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api(`/api/irrigation/history?farmId=${STATE.user?.id || 'none'}`);
+    el.innerHTML = `<pre style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);font-size:12px;overflow-x:auto">${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) { el.innerHTML = `<span style="color:var(--danger)">${t('common.error')}: ${err.message}</span>`; }
+}
+
+// ─── MARKET ─────────────────────────────────────────────────────────
+function loadMarket() {
+  const el = document.getElementById('page-market');
+  el.innerHTML = `
+    <h2 style="margin-bottom:16px">🏪 ${t('market.title')}</h2>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>${t('market.crop')}</label><input type="text" id="mkt-crop" value="tomato"></div>
+        <div class="form-group"><label>${t('market.country')}</label>
+          <select id="mkt-country">
+            <option value="MA">Morocco</option><option value="SN">Senegal</option><option value="KE">Kenya</option>
+            <option value="NG">Nigeria</option><option value="GH">Ghana</option><option value="ET">Ethiopia</option><option value="TZ">Tanzania</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-primary" onclick="getMarketPrice()">${t('market.price')}</button>
+        <button class="btn btn-outline" onclick="getMarketTrend()">${t('market.trend')}</button>
+        <button class="btn btn-accent" onclick="getBestPrice()">${t('market.best')}</button>
+        <button class="btn btn-outline" onclick="listCrops()">Crops</button>
+      </div>
+    </div>
+    <div class="card"><div class="card-header"><h3>${t('market.title')}</h3></div><div id="mkt-result" style="font-size:13px;color:var(--text-light)">${t('common.loading') === 'جاري التحميل...' ? 'نتائج ستظهر هنا' : 'Results will appear here'}</div></div>`;
+}
+
+async function getMarketPrice() {
+  const crop = document.getElementById('mkt-crop').value;
+  const country = document.getElementById('mkt-country').value;
+  const el = document.getElementById('mkt-result');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api(`/api/market/price?crop=${crop}&country=${country}`);
+    el.innerHTML = `<pre style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);font-size:12px;overflow-x:auto">${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) { el.innerHTML = `<span style="color:var(--danger)">${t('common.error')}: ${err.message}</span>`; }
+}
+
+async function getMarketTrend() {
+  const crop = document.getElementById('mkt-crop').value;
+  const country = document.getElementById('mkt-country').value;
+  const el = document.getElementById('mkt-result');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api(`/api/market/trend?crop=${crop}&country=${country}`);
+    el.innerHTML = `<pre style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);font-size:12px;overflow-x:auto">${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) { el.innerHTML = `<span style="color:var(--danger)">${t('common.error')}: ${err.message}</span>`; }
+}
+
+async function getBestPrice() {
+  const crop = document.getElementById('mkt-crop').value;
+  const el = document.getElementById('mkt-result');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api(`/api/market/best-price?crop=${crop}`);
+    el.innerHTML = `<pre style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);font-size:12px;overflow-x:auto">${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) { el.innerHTML = `<span style="color:var(--danger)">${t('common.error')}: ${err.message}</span>`; }
+}
+
+async function listCrops() {
+  const el = document.getElementById('mkt-result');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api('/api/market/crops');
+    el.innerHTML = `<pre style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);font-size:12px;overflow-x:auto">${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) { el.innerHTML = `<span style="color:var(--danger)">${t('common.error')}: ${err.message}</span>`; }
+}
+
+// ─── MARKETPLACE ────────────────────────────────────────────────────
+function loadMarketplace() {
+  const el = document.getElementById('page-marketplace');
+  const isFarmer = STATE.user?.role === 'farmer';
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2>📦 ${t('marketplace.title')}</h2>
+      <div>
+        ${isFarmer ? `<button class="btn btn-primary" onclick="showCreateListingForm()">+ ${t('marketplace.create')}</button>` : ''}
+        <button class="btn btn-outline" onclick="loadAllListings()">${t('marketplace.listings') === 'المنتجات' ? 'عرض الكل' : 'Browse All'}</button>
+        ${isFarmer ? `<button class="btn btn-outline" onclick="loadMyListings()">${t('marketplace.listings') === 'المنتجات' ? 'منتجاتي' : 'My Listings'}</button>` : ''}
+      </div>
+    </div>
+    <div id="marketplace-content"><div style="text-align:center;padding:40px"><div class="spinner"></div></div></div>`;
+  loadAllListings();
+}
+
+function showCreateListingForm() {
+  const isRtl = STATE.lang === 'ar';
+  openModal(
+    isRtl ? 'إضافة منتج جديد' : 'New Listing',
+    `
+    <div class="form-group"><label>${t('marketplace.crop')}</label><input type="text" id="listing-crop" value="tomato"></div>
+    <div class="form-row">
+      <div class="form-group"><label>${t('marketplace.qty')}</label><input type="number" id="listing-qty" value="500"></div>
+      <div class="form-group"><label>${t('marketplace.price_kg')}</label><input type="number" id="listing-price" value="8.5" step="0.1"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>${t('marketplace.location')}</label><input type="text" id="listing-location" value="Souss-Massa"></div>
+      <div class="form-group"><label>${t('marketplace.quality')}</label>
+        <select id="listing-quality"><option value="premium">Premium</option><option value="standard" selected>Standard</option><option value="economy">Economy</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>${t('marketplace.notes')}</label><textarea id="listing-notes" rows="2"></textarea></div>
+    `,
+    `<button class="btn btn-primary" onclick="createListing()">${t('marketplace.submit')}</button>`
+  );
+}
+
+async function createListing() {
+  const crop = document.getElementById('listing-crop').value;
+  const qty = parseFloat(document.getElementById('listing-qty').value);
+  const price = parseFloat(document.getElementById('listing-price').value);
+  const location = document.getElementById('listing-location').value;
+  const quality = document.getElementById('listing-quality').value;
+  const notes = document.getElementById('listing-notes').value;
+
+  try {
+    await api('/api/marketplace/listings', {
+      method: 'POST',
+      body: JSON.stringify({
+        crop_type: crop, quantity_kg: qty, price_per_kg: price, currency: 'MAD',
+        quality_grade: quality, location_label: location, farm_id: STATE.user?.id || 'none',
+        harvest_date: new Date().toISOString().split('T')[0], notes
+      })
+    });
+    closeModal();
+    toast(isRtl() ? 'تم نشر المنتج بنجاح' : 'Listing created successfully');
+    loadAllListings();
+  } catch (err) { toast(err.message, 'error'); }
+}
+
+function isRtl() { return STATE.lang === 'ar'; }
+
+async function loadAllListings() {
+  const el = document.getElementById('marketplace-content');
+  try {
+    const data = await api('/api/marketplace/listings');
+    const listings = data.listings || [];
+    renderListings(listings, el);
+  } catch (err) { el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--danger)">${t('common.error')}: ${err.message}</div>`; }
+}
+
+async function loadMyListings() {
+  const el = document.getElementById('marketplace-content');
+  try {
+    const data = await api('/api/marketplace/listings/my');
+    const listings = data.listings || [];
+    renderListings(listings, el);
+  } catch (err) { el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--danger)">${t('common.error')}: ${err.message}</div>`; }
+}
+
+function renderListings(listings, el) {
+  if (listings.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><h4>${t('marketplace.listings') === 'المنتجات' ? 'لا توجد منتجات' : 'No listings'}</h4><p>${t('marketplace.create') === 'إضافة منتج' ? 'قم بإضافة أول منتج لك' : 'Create your first listing'}</p></div>`;
+    return;
+  }
+  el.innerHTML = listings.map(l => `
+    <div class="listing-card">
+      <div class="listing-icon">🌾</div>
+      <div class="listing-body">
+        <h4>${l.crop_type} <span class="badge badge-${l.quality_grade === 'premium' ? 'warning' : l.quality_grade === 'economy' ? 'info' : 'success'}">${l.quality_grade || 'standard'}</span></h4>
+        <div class="meta">
+          <span>📦 ${l.quantity_kg} kg</span>
+          <span>📍 ${l.location_label || ''}</span>
+          <span>📅 ${l.harvest_date ? l.harvest_date.split('T')[0] : ''}</span>
+        </div>
+        ${l.notes ? `<p style="font-size:12px;color:var(--text-light);margin-top:4px">${l.notes}</p>` : ''}
+      </div>
+      <div class="listing-price">${l.price_per_kg} ${l.currency || 'MAD'}<span style="display:block;font-size:11px;font-weight:400;color:var(--text-light)">/kg</span></div>
+    </div>
+  `).join('');
+}
+
+// ─── DETECTION ──────────────────────────────────────────────────────
+function loadDetection() {
+  const el = document.getElementById('page-detection');
+  el.innerHTML = `
+    <h2 style="margin-bottom:16px">🔬 ${t('detection.title')}</h2>
+    <div class="card">
+      <div class="form-group"><label>${t('detection.url')}</label><input type="text" id="det-url" placeholder="https://example.com/photo.jpg"></div>
+      <div class="form-row">
+        <div class="form-group"><label>${t('detection.crop')}</label><input type="text" id="det-crop" placeholder="tomato"></div>
+        <div class="form-group"><label>Farm ID</label><input type="text" id="det-farm" value="${STATE.user?.id || ''}"></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-primary" onclick="analyzePhoto()">${t('detection.analyze')}</button>
+        <button class="btn btn-outline" onclick="getDetectionHistory()">${t('irrigation.history')}</button>
+      </div>
+    </div>
+    <div class="card"><div class="card-header"><h3>${t('detection.title')}</h3></div><div id="det-result" style="font-size:13px;color:var(--text-light)">${t('common.loading') === 'جاري التحميل...' ? 'نتائج ستظهر هنا' : 'Results will appear here'}</div></div>`;
+}
+
+async function analyzePhoto() {
+  const url = document.getElementById('det-url').value;
+  const crop = document.getElementById('det-crop').value;
+  const farmId = document.getElementById('det-farm').value;
+  const el = document.getElementById('det-result');
+  if (!url) { toast('Photo URL is required', 'error'); return; }
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api('/api/detection/analyze', {
+      method: 'POST', body: JSON.stringify({ photoUrl: url, farmId: farmId || STATE.user?.id, crop: crop || null })
+    });
+    el.innerHTML = `<pre style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);font-size:12px;overflow-x:auto">${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) { el.innerHTML = `<span style="color:var(--danger)">${t('common.error')}: ${err.message}</span>`; }
+}
+
+async function getDetectionHistory() {
+  const el = document.getElementById('det-result');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api(`/api/detection/history?farmId=${STATE.user?.id || 'none'}`);
+    el.innerHTML = `<pre style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);font-size:12px;overflow-x:auto">${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) { el.innerHTML = `<span style="color:var(--danger)">${t('common.error')}: ${err.message}</span>`; }
+}
+
+// ─── COMMUNITY ──────────────────────────────────────────────────────
+function loadCommunity() {
+  const el = document.getElementById('page-community');
+  el.innerHTML = `
+    <h2 style="margin-bottom:16px">🌍 ${t('community.title')}</h2>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>${t('community.lat')}</label><input type="number" id="comm-lat" value="30.42" step="0.01"></div>
+        <div class="form-group"><label>${t('community.lng')}</label><input type="number" id="comm-lng" value="-9.60" step="0.01"></div>
+      </div>
+      <div class="form-group"><label>${t('community.radius')}</label><input type="number" id="comm-radius" value="15"></div>
+      <div class="card-actions">
+        <button class="btn btn-primary" onclick="getAlerts()">${t('community.get')}</button>
+        <button class="btn btn-outline" onclick="getFarmersNearby()">${t('community.farmers')}</button>
+      </div>
+    </div>
+    <div id="community-alerts-list"></div>`;
+}
+
+async function getAlerts() {
+  if (!STATE.token) { toast(isRtl() ? 'رجاء تسجيل الدخول أولاً' : 'Please login first', 'error'); return; }
+  const lat = document.getElementById('comm-lat').value;
+  const lng = document.getElementById('comm-lng').value;
+  const radius = document.getElementById('comm-radius').value;
+  const el = document.getElementById('community-alerts-list');
+  el.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner"></div></div>';
+  try {
+    const data = await api(`/api/community/alerts?lat=${lat}&lng=${lng}&radius=${radius}`);
+    const alerts = data.alerts || [];
+    if (alerts.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">🌍</div><h4>${t('common.loading') === 'جاري التحميل...' ? 'لا توجد تنبيهات' : 'No alerts nearby'}</h4></div>`;
+      return;
+    }
+    el.innerHTML = alerts.map(a => `
+      <div class="card alert-card" style="display:block">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="alert-icon">${a.severity === 'high' || a.severity === 'critical' ? '🔴' : a.severity === 'medium' ? '🟡' : '🟢'}</div>
+          <div class="alert-body">
+            <h4>${a.crop_type || 'Crop'} — ${a.alert_type} <span class="badge badge-${a.severity === 'high' || a.severity === 'critical' ? 'danger' : a.severity === 'medium' ? 'warning' : 'info'}">${a.severity}</span></h4>
+            <p>${a.diagnosis || 'No diagnosis'} · ${a.farmers_notified || 0} farmers notified</p>
+            ${a.description ? `<p style="margin-top:4px">${a.description}</p>` : ''}
+            <div class="alert-actions">
+              <button class="btn btn-sm btn-success" onclick="verifyAlert('${a.id}', true)">✓ ${t('community.confirm')}</button>
+              <button class="btn btn-sm btn-outline" onclick="verifyAlert('${a.id}', false)">✕ ${t('community.dismiss')}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) { el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--danger)">${t('common.error')}: ${err.message}</div>`; }
+}
+
+async function verifyAlert(alertId, confirmed) {
+  try {
+    const data = await api('/api/community/verify', {
+      method: 'POST', body: JSON.stringify({ alertId, confirmed })
+    });
+    if (data.success) {
+      toast(confirmed ? (isRtl() ? '✅ تم تأكيد التنبيه' : 'Alert confirmed') : (isRtl() ? '❌ تم رفض التنبيه' : 'Alert dismissed'));
+      getAlerts();
+    } else {
+      toast(data.error || 'Error', 'error');
+    }
+  } catch (err) { toast(err.message, 'error'); }
+}
+
+async function getFarmersNearby() {
+  const lat = document.getElementById('comm-lat').value;
+  const lng = document.getElementById('comm-lng').value;
+  const radius = document.getElementById('comm-radius').value;
+  const el = document.getElementById('community-alerts-list');
+  el.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner"></div></div>';
+  try {
+    const data = await api(`/api/community/farmers-nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
+    const farmers = data.farmers || [];
+    if (farmers.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">👨‍🌾</div><h4>${t('community.farmers') === 'المزارعون القريبون' ? 'لا يوجد مزارعون قريبون' : 'No farmers nearby'}</h4></div>`;
+      return;
+    }
+    el.innerHTML = `
+      <div class="card"><div class="card-header"><h3>👨‍🌾 ${t('community.farmers')}</h3><span>${farmers.length} ${t('community.farmers') === 'المزارعون القريبون' ? 'مزارع' : 'farmers'}</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Farm</th><th>Crop</th><th>${t('community.radius')}</th></tr></thead>
+        <tbody>${farmers.map(f => `<tr><td>${f.farm_name || 'Unknown'}</td><td>${f.crop_type || '-'}</td><td>${f.distance} km</td></tr>`).join('')}</tbody>
+      </table></div></div>`;
+  } catch (err) { el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--danger)">${t('common.error')}: ${err.message}</div>`; }
+}
+
+// ─── NOTIFICATIONS ──────────────────────────────────────────────────
+function loadNotifications() {
+  const el = document.getElementById('page-notifications');
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2>🔔 ${t('notifications.title')}</h2>
+      <button class="btn btn-sm btn-outline" onclick="markAllRead()">${t('notifications.mark_read')}</button>
+    </div>
+    <div id="notif-list"><div style="text-align:center;padding:40px"><div class="spinner"></div></div></div>`;
+  loadNotificationsList();
+}
+
+async function loadNotificationsList() {
+  const el = document.getElementById('notif-list');
+  try {
+    const data = await api('/api/notifications');
+    const notifs = data.notifications || [];
+    if (notifs.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔔</div><h4>${t('notifications.empty')}</h4></div>`;
+      return;
+    }
+    el.innerHTML = `<div class="card">${notifs.map(n => `
+      <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+        <span style="font-size:18px">${n.type === 'community' ? '🌍' : n.type === 'price' ? '💰' : n.type === 'irrigation' ? '💧' : n.type === 'detection' ? '🔬' : '🔔'}</span>
+        <div style="flex:1">
+          <p style="font-size:13px">${n.message}</p>
+          <p style="font-size:11px;color:var(--text-light);margin-top:2px">${new Date(n.created_at).toLocaleString()}</p>
+        </div>
+        ${!n.is_read ? `<span class="badge badge-info" style="flex-shrink:0">${t('common.loading') === 'جاري التحميل...' ? 'جديد' : 'New'}</span>` : ''}
+      </div>
+    `).join('')}</div>`;
+    loadNotificationsCount();
+  } catch (err) {
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--danger)">${t('common.error')}: ${err.message}</div>`;
+  }
+}
+
+async function loadNotificationsCount() {
+  try {
+    const data = await api('/api/notifications');
+    const notifs = data.notifications || [];
+    const unread = notifs.filter(n => !n.is_read).length;
+    const badge = document.getElementById('notif-sidebar-badge');
+    const dot = document.getElementById('notif-dot');
+    if (unread > 0) {
+      badge.style.display = 'inline'; badge.textContent = unread;
+      dot.style.display = 'block';
+    } else {
+      badge.style.display = 'none'; dot.style.display = 'none';
+    }
+  } catch (e) {}
+}
+
+async function markAllRead() {
+  try {
+    await api('/api/notifications/read-all', { method: 'PUT' });
+    toast(t('common.success'));
+    loadNotificationsList();
+  } catch (err) { toast(err.message, 'error'); }
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────
+refreshUI();
+</script>
+</body>
+</html>
