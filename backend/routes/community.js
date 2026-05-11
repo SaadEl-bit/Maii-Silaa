@@ -31,21 +31,35 @@ router.get('/alerts', auth.authenticate, asyncHandler(async (req, res) => {
     throw error;
   }
   
-  const { data, error } = await supabase
-    .from('community_alerts')
-    .select('*')
-    .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString())
-    .order('created_at', { ascending: false });
+  let data, error;
+  try {
+    const result = await supabase
+      .from('community_alerts')
+      .select('*')
+      .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString())
+      .order('created_at', { ascending: false });
+    data = result.data;
+    error = result.error;
+  } catch (e) {
+    // Table doesn't exist or not connected
+    return res.json({ alerts: [], count: 0 });
+  }
   
-  if (error) throw error;
+  if (error) {
+    // Table doesn't exist — return empty
+    if (error.code === '42P01' || error.message?.includes('relation')) {
+      return res.json({ alerts: [], count: 0 });
+    }
+    throw error;
+  }
   
   const alerts = (data || []).map(alert => {
-    const distance = communityService.findNearbyFarmers(
+    const nearby = communityService.findNearbyFarmers(
       { lat: alert.center_lat, lng: alert.center_lng },
       alert,
       radius
     );
-    return { ...alert, yourDistance: distance };
+    return { ...alert, nearbyFarmers: nearby.length };
   });
   
   res.json({

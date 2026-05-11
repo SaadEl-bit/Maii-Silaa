@@ -72,7 +72,7 @@ router.get('/recommend', asyncHandler(async (req, res) => {
     aiResult = await aiTranslator.translate('irrigation', contextData);
   } catch (aiError) {
     console.warn('AI translation failed:', aiError.message);
-    aiResult = aiTranslator.getFallbackResponse('irrigation');
+    aiResult = aiTranslator.getFallbackResponse('irrigation', contextData);
   }
   
   res.json({
@@ -103,14 +103,26 @@ router.get('/history', asyncHandler(async (req, res) => {
     throw error;
   }
   
-  const { data, error } = await supabase
-    .from('irrigation_logs')
-    .select('*')
-    .eq('farm_id', farmId)
-    .order('created_at', { ascending: false })
-    .limit(50);
+  let data, error;
+  try {
+    const result = await supabase
+      .from('irrigation_logs')
+      .select('*')
+      .eq('farm_id', farmId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    data = result.data;
+    error = result.error;
+  } catch (e) {
+    return res.json({ history: [], count: 0 });
+  }
   
-  if (error) throw error;
+  if (error) {
+    if (error.code === '42P01') {
+      return res.json({ history: [], count: 0 });
+    }
+    throw error;
+  }
   
   res.json({
     history: data || [],

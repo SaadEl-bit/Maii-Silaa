@@ -20,9 +20,9 @@ const cropCoefficients = require('../data/cropCoefficients');
  */
 function calculateET0(weather) {
   const { current } = weather;
-  const { temp, humidity, wind, solar } = current;
+  const { temp, humidity, wind, solar, cloudCover } = current;
   
-  if (!temp || !solar) {
+  if (!temp) {
     return 0;
   }
   
