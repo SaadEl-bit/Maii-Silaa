@@ -19,6 +19,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const OpenAI    = require('openai');
+const path      = require('path');
 require('dotenv').config();
 
 const supabase = require('../config/supabase');
@@ -29,7 +30,23 @@ let _openrouter = null;
 
 function getAnthropic() {
   if (!_anthropic && process.env.ANTHROPIC_API_KEY) {
-    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    // Force load .env if needed
+    if (!process.env.ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
+      const fs = require('fs');
+      const envContent = fs.readFileSync(path.join(__dirname, '..', '.env'), 'utf8');
+      envContent.split('\n').forEach(line => {
+        if (line.includes('=') && !line.startsWith('#')) {
+          const [key, ...valueParts] = line.split('=');
+          const value = valueParts.join('=').trim();
+          if (key && value) process.env[key] = value;
+        }
+      });
+    }
+    
+    if (process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
+      _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      console.log('detectionService: Anthropic client initialized');
+    }
   }
   return _anthropic;
 }
@@ -48,7 +65,7 @@ function getOpenRouter() {
   return _openrouter;
 }
 
-// ── Model stack (benchmark order 2026-05-08) ──────────────────────────────────
+// ── Model stack (updated 2026-05-11) ──────────────────────────────────
 const VISION_STACK = {
   // TIER 1: Fast primary (OpenRouter) — runs first in parallel
   primary: 'google/gemini-2.5-flash-lite',
@@ -56,11 +73,11 @@ const VISION_STACK = {
   // TIER 2: Specialist secondary (OpenRouter) — runs in parallel with T1
   secondary: 'qwen/qwen3-vl-8b-instruct',
 
-  // TIER 3: Arbitrator (Anthropic direct) — ONLY when T1+T2 disagree or uncertain
-  fallback: 'claude-sonnet-4-6',
+  // TIER 3: Emergency (Anthropic) — CHEAPEST, FASTEST — try first
+  fallback: 'claude-haiku-4-5-20251001',
 
-  // TIER 4: Emergency (Anthropic direct) — if T3 fails
-  emergency: 'claude-haiku-4-5-20251001',
+  // TIER 4: Arbitrator (Anthropic) — BETTER quality, SLOWER, more expensive
+  emergency: 'claude-sonnet-4-6',
 
   // REMOVED: free NVIDIA model dead weight (429 rate-limited in all tests)
 };
@@ -117,24 +134,36 @@ async function callOpenRouterVision(imageUrl, userPrompt, model) {
  */
 async function callAnthropicVision(imageUrl, userPrompt, model) {
   const client = getAnthropic();
-  if (!client) throw new Error('ANTHROPIC_API_KEY missing');
+  if (!client) {
+    console.error('detectionService: No Anthropic client - API key:', process.env.ANTHROPIC_API_KEY?.substring(0, 10));
+    throw new Error('ANTHROPIC_API_KEY missing or invalid');
+  }
 
-  const response = await client.messages.create({
-    model,
-    max_tokens: 1024,
-    messages: [{
-      role: 'user',
-      content: [
-        { type: 'image', source: { type: 'url', url: imageUrl } },
-        { type: 'text',  text: SYSTEM_PROMPT + '\n\n' + userPrompt },
-      ],
-    }],
-  });
+  console.log('detectionService: Calling Anthropic with model:', model);
+  console.log('detectionService: API key loaded:', process.env.ANTHROPIC_API_KEY?.substring(0, 15) + '...');
+  
+  try {
+    const response = await client.messages.create({
+      model,
+      max_tokens: 1024,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'url', url: imageUrl } },
+          { type: 'text',  text: SYSTEM_PROMPT + '\n\n' + userPrompt },
+        ],
+      }],
+    });
 
-  const raw = response.content[0]?.text;
-  if (!raw) throw new Error(`Empty response from ${model}`);
+    const raw = response.content[0]?.text;
+    if (!raw) throw new Error(`Empty response from ${model}`);
 
-  return parseVisionJSON(raw, model);
+    return parseVisionJSON(raw, model);
+  } catch (err) {
+    console.error('detectionService: Anthropic error details:', err.message);
+    console.error('detectionService: Is it network?', err.message.includes('ECONNREFUSED') || err.message.includes('fetch'));
+    throw err;
+  }
 }
 
 /**
@@ -312,7 +341,7 @@ async function analyze(photoUrl, farmData) {
     }
   }
 
-  // ── STEP 3: Escalate to T3 (Claude Sonnet — arbitrator) ─────────────────────
+  // ── STEP 3: Escalate to T3 (Claude Haikaru — first arbitrator) ─────────────────────
   if (!finalResult) {
     console.log(`detectionService: escalating to T3 (${VISION_STACK.fallback})…`);
     try {
@@ -320,6 +349,9 @@ async function analyze(photoUrl, farmData) {
         ? buildArbitratorPrompt(userPrompt, t1, t2)
         : userPrompt;
 
+      // Add delay to avoid rate limiting
+      await new Promise(r => setTimeout(r, 2000));
+      
       finalResult = await callAnthropicVision(photoUrl, arbitratorPrompt, VISION_STACK.fallback);
       pipeline    = 'T3 arbitrator (Claude Sonnet)';
       console.log(`detectionService: T3 confidence: ${finalResult.confidence}`);
@@ -328,10 +360,13 @@ async function analyze(photoUrl, farmData) {
     }
   }
 
-  // ── STEP 4: Emergency — T4 (Claude Haiku) ────────────────────────────────────
+  // ── STEP 4: Emergency — T4 (Claude Sonnet - Final arbitrator (expensive)) ────────────────────────────────────
   if (!finalResult) {
     console.log(`detectionService: emergency T4 (${VISION_STACK.emergency})…`);
     try {
+      // Add delay between T3 and T4
+      await new Promise(r => setTimeout(r, 2000));
+      
       finalResult = await callAnthropicVision(photoUrl, userPrompt, VISION_STACK.emergency);
       pipeline    = 'T4 emergency (Claude Haiku)';
     } catch (err) {
@@ -339,7 +374,25 @@ async function analyze(photoUrl, farmData) {
     }
   }
 
-  // ── STEP 5: Hard fallback ─────────────────────────────────────────────────────
+  // ── STEP 5: If T3/T4 failed, return best T1/T2 result instead of static fallback ─
+  if (!finalResult) {
+    console.log('detectionService: T3/T4 failed — returning best T1/T2 result instead of static fallback');
+    
+    // Get all available results
+    const availableResults = [];
+    if (t1) availableResults.push(t1);
+    if (t2) availableResults.push(t2);
+    
+    if (availableResults.length > 0) {
+      // Return the one with highest confidence
+      availableResults.sort((a, b) => b.confidence - a.confidence);
+      finalResult = availableResults[0];
+      pipeline    = finalResult === t1 ? 'T1 fallback (T3/T4 failed)' : 'T2 fallback (T3/T4 failed)';
+      console.log(`detectionService: Using ${finalResult === t1 ? 'T1' : 'T2'} result with confidence ${finalResult.confidence}`);
+    }
+  }
+
+  // ── STEP 6: Hard fallback (only if even T1/T2 failed) ────────────────────────
   if (!finalResult) {
     console.error('detectionService: all models failed — returning static fallback');
     return {
@@ -357,7 +410,7 @@ async function analyze(photoUrl, farmData) {
     };
   }
 
-  // ── STEP 6: Enrich and return ─────────────────────────────────────────────────
+  // ── STEP 7: Enrich and return ─────────────────────────────────────────────────
   return {
     diagnosis:      finalResult.diagnosis,
     severity:       calculateSeverity(finalResult.severity),

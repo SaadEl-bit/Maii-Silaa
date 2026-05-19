@@ -35,7 +35,9 @@ const openrouter = new OpenAI({
 // Using a public domain tomato leaf disease image from PlantVillage dataset.
 // In production, this will be a Supabase Storage URL from the farmer's upload.
 const TEST_IMAGE_URL =
-  'https://static0.backyardbossimages.com/wordpress/wp-content/uploads/2022/07/yellow-curl.jpg?q=50&fit=crop&w=1600&h=900&dpr=1.5' ;
+  //'https://static0.backyardbossimages.com/wordpress/wp-content/uploads/2022/07/yellow-curl.jpg?q=50&fit=crop&w=1600&h=900&dpr=1.5' ;
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTI0yoYuClnJlI6y-FjeUOEeoRaKPGDbfG6lQ&s' ;
+  // 'https://stmaaprodfwsite.blob.core.windows.net/assets/sites/1/261017-Disease1-Eyespot-c-no-credit.jpg' ;
 
 // ── Prompt (same system contract as detectionService.js) ─────────────────────
 const SYSTEM_PROMPT =

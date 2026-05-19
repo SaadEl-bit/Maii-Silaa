@@ -1,0 +1,109 @@
+# ====================================================================
+# FILAHA — AGENT RULES (Backend + Frontend)
+# ====================================================================
+
+# ------------------------------------------------------------------
+# STEP 1: READ BEFORE YOU CODE (MANDATORY)
+# ------------------------------------------------------------------
+# Before making ANY changes, read these two files IN ORDER:
+#
+# 1. PROJECT_CONTEXT.txt  → Master document: project description,
+#    tech stack, ethical pillars, language rules, complete feature
+#    list (Sections 6A–6J), DB schema (12 tables), AI response
+#    contract, multi-country price sources, folder structure, and
+#    current status log.
+#    ALSO check "SECTION 14: CURRENT STATUS" at the bottom — it
+#    tells you where the project currently stands and what was
+#    last changed.
+#
+# 2. WALKTHROUGH.md       → Full system workflow, folder-by-folder
+#    build order (Phase 0-9), data flows for MAÏ and SILA,
+#    how to run/test each script, and the request lifecycle.
+#    Use this to understand which phase you are in and what
+#    comes next.
+#
+# Together these files give you the full picture. Do NOT start
+# coding until you understand the current project state.
+
+# ------------------------------------------------------------------
+# STEP 2: CODING RULES
+# ------------------------------------------------------------------
+
+# --- LANGUAGE & TEXT ---
+# - Default UI language: Arabic (MSA / العربية الفصحى). No Darija.
+# - Code language (variables, comments, file names, SQL names): English ONLY.
+# - i18n keys: English snake_case. Values: target language.
+# - RTL layout for Arabic. LTR for French/English.
+
+# --- AI & ETHICS (NON-NEGOTIABLE) ---
+# - Every AI recommendation MUST return the strict JSON contract:
+#     { recommendation, explanation, confidence, factors[], action_items[], data_sources_used[] }
+#   (See PROJECT_CONTEXT.txt Section 9).
+# - Every AI recommendation MUST be logged to ai_explanations table.
+# - Every AI decision, consent change, and data export MUST be logged
+#   to data_audit_log table.
+# - ALWAYS check data_sharing_consent before using farm data for
+#   aggregates or AI training.
+# - ALWAYS include an ExplainabilityPanel component alongside any
+#   AI result in the frontend.
+
+# --- MULTI-COUNTRY ARCHITECTURE ---
+# - NEVER hardcode Morocco-specific logic.
+# - ALWAYS use constants.js (ACTIVE_COUNTRIES, PRICE_SOURCES, CLIMATE_ZONES).
+# - ALWAYS pass country_code where relevant (routes, services, DB queries).
+# - Crop coefficients, price sources, and notifications are country-aware.
+
+# --- EXTERNAL APIs ---
+# - Weather: Open-Meteo (free, no key). Wrap in try/catch with fallback.
+# - AI: Anthropic Claude 3.5 Haiku (primary). OpenRouter Gemma 4 (backup).
+# - WhatsApp: AiSensy Cloud API (primary). Twilio SMS (fallback).
+# - ALWAYS validate Claude JSON responses (strip markdown fences,
+#   check required keys, validate confidence is 0.0–1.0).
+# - ALWAYS handle API failures gracefully — never crash the server.
+
+# --- FILE & FOLDER HYGIENE ---
+# - Every file contains a top comment explaining what the file does.
+# - Every folder has a "whatFor.txt" explaining its role.
+# - Follow the build order in WALKTHROUGH.md — do not skip phases.
+# - Keep code comments short and simple. No walls of text.
+# - Use async/await. No callback hell.
+
+# --- DATABASE ---
+# - 12 tables: users, farms, countries, regions, crop_coefficients,
+#   irrigation_logs, price_history, listings, offers, detections,
+#   community_alerts, ai_explanations, data_audit_log.
+# - All names in English. Add comments in English.
+# - Use UUID primary keys. Use foreign keys with ON DELETE behavior.
+# - Geo columns use GEOGRAPHY type for spatial queries.
+
+# ------------------------------------------------------------------
+# STEP 3: COMMUNICATION RULES (WHEN WRITING CODE)
+# ------------------------------------------------------------------
+# When writing production code (not test scripts), you MUST:
+#
+#   1. Explain in the chat what the file does and why it exists.
+#   2. Keep code comments short — easy for a beginner to understand.
+#   3. After writing the code, tell the user IN THE CHAT (not in
+#      file comments) exactly:
+#        - How to test it (PowerShell commands)
+#        - What output to expect
+#        - What .env variables are needed
+#   4. If you create a new table or modify schema, provide the SQL
+#      and tell the user to run it in Supabase SQL Editor.
+#
+# This way the user learns while building.
+
+# ------------------------------------------------------------------
+# STEP 4: UPDATE PROJECT STATUS (MANDATORY — WHEN DONE)
+# ------------------------------------------------------------------
+# When you finish your session, you MUST update "SECTION 14: CURRENT
+# STATUS" at the bottom of PROJECT_CONTEXT.txt. Add a new entry with:
+#
+#   ### [DATE] — [SHORT TITLE]
+#   - **Phase:** Which phase (0-9) the project is at now
+#   - **What was done:** Bullet list of files created/modified
+#   - **What works now:** What can be tested/run after your changes
+#   - **Next step:** What the next agent should work on
+#
+# This is how the next agent (or human) knows exactly where you
+# stopped and what to do next. NEVER skip this step.

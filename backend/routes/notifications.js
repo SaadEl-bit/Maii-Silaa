@@ -24,14 +24,26 @@ const supabase = require('../config/supabase');
 router.get('/', auth.authenticate, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   
-  const { data, error } = await supabase
-    .from('notifications')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(50);
+  let data, error;
+  try {
+    const result = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    data = result.data;
+    error = result.error;
+  } catch (e) {
+    return res.json({ notifications: [], unreadCount: 0 });
+  }
   
-  if (error) throw error;
+  if (error) {
+    if (error.code === '42P01') {
+      return res.json({ notifications: [], unreadCount: 0 });
+    }
+    throw error;
+  }
   
   const unread = (data || []).filter(n => !n.is_read).length;
   

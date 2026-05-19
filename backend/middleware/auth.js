@@ -1,92 +1,101 @@
 /**
- * Auth Middleware — JWT Token Verification
- * 
- * Verifies Supabase JWT tokens from Authorization header.
- * Extracts user info and attaches to req.user.
- * 
- * Header: Authorization: Bearer <token>
+ * Auth Middleware — Supabase JWT Token Verification
+ *
+ * Verifies tokens issued by Supabase Auth (NOT a local secret).
+ * Extracts user info (id, email, phone, role from user_metadata) and attaches to req.user.
+ *
+ * Header: Authorization: Bearer <supabase_access_token>
  */
 
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+const supabase = require('../config/supabase');
 
 /**
- * Verify JWT token from Authorization header
- * @param {string} authHeader - "Bearer <token>"
- * @returns {object|null} Decoded token or null
+ * Express middleware: Verify Supabase token and attach user to req.
+ * Rejects with 401 if the token is missing, expired, or invalid.
  */
-function verifyToken(authHeader) {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-  
-  const token = authHeader.slice(7);
-  
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET, {
-      algorithms: ['HS256'],
-      issuer: 'filaha',
-    });
-    return decoded;
-  } catch (error) {
-    return null;
-  }
-}
-
-/**
- * Express middleware: Attach user to request
- * @param {object} req - Express request
- * @param {object} res - Express response
- * @param {function} next - Next middleware
- */
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
-  const decoded = verifyToken(authHeader);
-  
-  if (!decoded) {
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({
       error: 'غير مصرح',
-      message: 'Invalid or missing token'
+      message: 'Authorization header missing or malformed. Expected: Bearer <token>'
     });
   }
-  
-  req.user = decoded;
-  next();
-}
 
-/**
- * Optional auth — attaches user if token present, continues if not
- */
-function optionalAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const decoded = verifyToken(authHeader);
-  
-  if (decoded) {
-    req.user = decoded;
+  const token = authHeader.slice(7);
+
+  try {
+    // Let Supabase verify the token using its own secret
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (error || !user) {
+      return res.status(401).json({
+        error: 'غير مصرح',
+        message: 'Token is invalid or expired'
+      });
+    }
+
+    // Flatten the user object so roleCheck.js can access role directly
+    req.user = {
+      id: user.id,
+      sub: user.id,           // some services use .sub — keep both
+      email: user.email,
+      phone: user.phone,
+      role: user.user_metadata?.role,
+      name: user.user_metadata?.name,
+      country_code: user.user_metadata?.country_code,
+      user_metadata: user.user_metadata // keep raw for any fallback logic
+    };
+
+    next();
+  } catch (err) {
+    return res.status(500).json({
+      error: 'خطأ في التحقق',
+      message: 'Token verification failed unexpectedly'
+    });
   }
-  next();
 }
 
 /**
- * Generate JWT for testing/dev purposes
+ * Optional auth — attaches user if a valid token is present, continues either way.
+ * Use this for public routes that behave differently when the user is logged in.
  */
-function generateToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, {
-    algorithm: 'HS256',
-    expiresIn: '7d',
-    issuer: 'filaha',
-  });
+async function optionalAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next(); // No token → continue as guest
+  }
+
+  const token = authHeader.slice(7);
+
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (!error && user) {
+      req.user = {
+        id: user.id,
+        sub: user.id,
+        email: user.email,
+        phone: user.phone,
+        role: user.user_metadata?.role,
+        name: user.user_metadata?.name,
+        country_code: user.user_metadata?.country_code,
+        user_metadata: user.user_metadata
+      };
+    }
+  } catch (_) {
+    // Silently ignore — optional auth never blocks the request
+  }
+
+  next();
 }
 
 const auth = {
-  verifyToken,
   authenticate,
-  optionalAuth,
-  generateToken,
-  JWT_SECRET
+  optionalAuth
 };
 
 if (typeof module !== 'undefined' && module.exports) {

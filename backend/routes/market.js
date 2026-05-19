@@ -106,7 +106,7 @@ router.get('/trend', async (req, res) => {
       aiResult = await aiTranslator.translate('market', contextData);
     } catch (aiError) {
       console.warn('AI translation failed:', aiError.message);
-      aiResult = aiTranslator.getFallbackResponse('market');
+      aiResult = aiTranslator.getFallbackResponse('market', contextData);
     }
     
     res.json({
