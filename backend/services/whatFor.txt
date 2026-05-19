@@ -1,0 +1,19 @@
+ROLE: Core business logic — the "brains" of Filaha. Each service does ONE job and is called by routes.
+
+FILES (MAÏ — Irrigation Intelligence):
+- weatherService.js      → Calls Open-Meteo API (free, no key) with lat/lng → returns {temp, humidity, wind, rain, solar}. First thing to build in this folder.
+- etCalculator.js        → FAO-56 evapotranspiration math: takes weather data + crop Kc from data/cropCoefficients.js + growth stage → outputs {shouldIrrigate, waterMm, waterHours}. This is the core MAÏ decision engine.
+
+FILES (SILA — Market Intelligence):
+- priceAnalyzer.js       → Queries price_history table (Supabase) for a crop + region → calculates 7/30 day trend → returns sell/hold/wait recommendation with confidence score.
+- storageCountdown.js    → Uses data/shelfLifeTables.js + current weather → calculates remaining shelf-life days and freshness status (fresh/warning/urgent). Powers the SILA countdown timers.
+
+FILES (Shared / Cross-Cutting):
+- aiTranslator.js        → LLM gateway: sends prompts (from utils/promptBuilder.js) to Claude 3.5 Haiku (primary) or OpenRouter Gemma (fallback). Validates JSON response format. Falls back to utils/msaFallbackTemplates.js if AI fails. Every call must return the ethical explainability JSON format.
+- detectionService.js    → Plant disease/pest detection: receives photo → uploads to Supabase Storage → sends to Vision API → returns {diagnosis, severity, actionText, product, priceLocal}. Triggers communityService on confirmation.
+- communityService.js    → After a detection is confirmed → uses utils/geospatial.js to find all farmers within ~15km → creates community_alert row → optionally triggers notifications. Supports the "Shared Futures" ethical pillar.
+- notificationService.js → Twilio WhatsApp + SMS delivery. Message body comes from i18n/template layer. Optional for hackathon demo.
+
+BUILD ORDER: Phase 4 — build after utils/. Start with weatherService (no dependencies), then etCalculator, then aiTranslator.
+DATA FLOW MAÏ:  weatherService → etCalculator → promptBuilder → aiTranslator → irrigation_logs table
+DATA FLOW SILA: priceAnalyzer → storageCountdown → promptBuilder → aiTranslator → listings table

@@ -1,0 +1,11 @@
+ROLE: Pure helper functions — no side effects, no API calls, no database access. Easy to test in isolation.
+
+FILES:
+- validators.js          → Input validation: lat/lng range checks, crop type validation, required field checks. Used by routes to sanitize incoming requests.
+- formatters.js          → Number/date/currency formatting for Arabic locale display. Example: formatPrice(12.5, 'MAD') → "12.50 د.م."
+- geospatial.js          → Haversine formula to calculate distance between two GPS coordinates in km. Used by services/communityService.js to find farmers within a 15km alert radius.
+- promptBuilder.js       → Builds structured LLM prompts with African agronomy context, ethical explainability rules, and MSA-first tone. Used by services/aiTranslator.js before calling Claude/OpenRouter.
+- msaFallbackTemplates.js → Hardcoded Modern Standard Arabic (MSA) strings used when the LLM call fails. Ensures the farmer always gets a response even if AI is down. Never contains dialect/Darija.
+
+BUILD ORDER: Phase 3 — build after data/. Services import these helpers.
+TEST: node -e "const g = require('./utils/geospatial'); console.log(g.distanceKm(34.0,-6.8,34.1,-6.7))"

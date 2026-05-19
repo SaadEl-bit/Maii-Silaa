@@ -1,0 +1,1 @@
+// Cron: morning weather fetch and precompute irrigation hints per farm.

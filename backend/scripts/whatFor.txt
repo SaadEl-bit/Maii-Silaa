@@ -1,0 +1,7 @@
+ROLE: One-off CLI scripts — run manually from terminal to set up or seed the database. NOT part of the running server.
+
+FILES:
+- seedDemoAccounts.js  → Creates demo user accounts: one farmer (phone OTP) and one distributor (email/password) in Supabase Auth + users table. Run AFTER migrate.
+
+BUILD ORDER: Phase 5 — build after services are ready. Run in strict order: migrate → seedDemoAccounts → seedPrices.
+RUN: node scripts/seedDemoAccounts.js

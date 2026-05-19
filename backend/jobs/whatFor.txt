@@ -1,0 +1,8 @@
+ROLE: Scheduled background tasks (cron jobs) — run automatically at fixed intervals while the server is running. NOT called by routes.
+
+FILES:
+- morningWeatherJob.js → Runs every day at ~6:00 AM. For each active farm: fetches weather via services/weatherService.js → runs services/etCalculator.js → saves result to irrigation_logs table → optionally sends WhatsApp notification to farmer via services/notificationService.js. This is how farmers get their daily "should I water?" advice without opening the app.
+- priceUpdateJob.js    → Runs every ~6 hours. Ingests latest crop prices from multiple sources (ONCA for Morocco, WFP VAM for North Africa, RATIN for East Africa, Afrique Verte for West Africa, FAOSTAT pan-Africa) → inserts new rows into price_history table. This keeps SILA price trends up to date.
+
+BUILD ORDER: Phase 9 (last) — build after everything else works. Jobs call services, so services must be complete first.
+NOTE: For hackathon demo, you can trigger these manually with: node jobs/morningWeatherJob.js

@@ -1,0 +1,1 @@
+// Integration check: Open-Meteo response shape and parsing.

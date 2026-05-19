@@ -1,0 +1,10 @@
+ROLE: Static reference tables — pure JS objects, no API calls, no database access.
+
+FILES:
+- cropCoefficients.js  → FAO-56 Kc (crop coefficient) values by crop type and growth stage. Used by services/etCalculator.js to compute how much water each crop needs at each stage. Example: tomato at "mid" stage = Kc 1.15.
+- shelfLifeTables.js   → Shelf-life duration (days) by crop type and storage class (open, ventilated, cold). Used by services/storageCountdown.js for SILA freshness timers.
+- priceSeedData.js     → Mock/synthetic price_history rows for hackathon demos when live ONCA/WFP feeds are unavailable. Used by scripts/seedPrices.js.
+
+BUILD ORDER: Phase 2 — build right after config/. Services depend on this data.
+TEST: node -e "console.log(require('./data/cropCoefficients'))"
+TEST: node -e "console.log(require('./data/shelfLifeTables'))"

@@ -1,0 +1,11 @@
+ROLE: Express middleware pipeline — runs on EVERY incoming HTTP request before it reaches the route handler. Handles security, localization, and error handling.
+
+FILES:
+- auth.js         → Extracts the JWT token from the "Authorization: Bearer <token>" header → verifies it against Supabase Auth → attaches the authenticated user to req.user. Rejects unauthenticated requests with 401.
+- roleCheck.js    → Checks req.user.role against allowed roles. Example: only "farmer" can access /irrigation, only "distributor" can make offers. Returns 403 Forbidden if role doesn't match.
+- i18n.js         → Reads the "Accept-Language" header → sets req.locale to ar (default), fr, or en. Services and routes use this to return content in the right language.
+- rateLimiter.js  → Limits API requests per IP or user to prevent abuse. Important for AI endpoints that cost money (Claude/OpenRouter).
+- errorHandler.js → Global error catcher — the LAST middleware mounted. Catches any unhandled error → returns a clean JSON {error, message, statusCode} response instead of crashing the server.
+
+BUILD ORDER: Phase 6 — build after services. Middleware wraps routes, so build it before routes.
+MOUNT ORDER in server.js: rateLimiter → i18n → auth → [routes] → errorHandler (always last).

@@ -1,0 +1,12 @@
+ROLE: Smoke tests for external API integrations. Run these FIRST to verify your API keys and connectivity before building services.
+
+FILES:
+- testClaude.js      → Sends a test prompt to Claude 3.5 Haiku via @anthropic-ai/sdk. Verifies ANTHROPIC_API_KEY from .env is valid and the API responds with the expected JSON format.
+- testOpenRouter.js   → Sends a test prompt to OpenRouter (Gemma fallback) via @openrouter/sdk. Verifies OPENROUTER_API_KEY from .env is valid.
+- testWeather.js      → Calls Open-Meteo API with sample Moroccan coordinates (no API key needed). Verifies weather data is returned correctly. Use this to test services/weatherService.js.
+- testClaude.ts       → TypeScript version of the Claude test (optional, for type safety reference).
+
+REQUIRES: .env file populated from .env.example with valid API keys.
+RUN: npm run test:claude
+RUN: npm run test:openrouter
+RUN: node tests/testWeather.js

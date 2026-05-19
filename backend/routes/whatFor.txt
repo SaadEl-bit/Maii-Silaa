@@ -1,0 +1,14 @@
+ROLE: HTTP API endpoints — maps URLs to service calls. This is the REST surface that the React frontend (and mobile app) talks to.
+
+FILES:
+- index.js        → Route aggregator: imports all route files below and mounts them on the Express app with their URL prefixes. Example: app.use('/irrigation', irrigationRoutes).
+- auth.js         → POST /auth/signup (farmer phone OTP or distributor email), POST /auth/login → delegates to Supabase Auth.
+- weather.js      → GET /weather/:lat/:lng → calls services/weatherService.js → returns weather JSON. No auth required (public data).
+- irrigation.js   → POST /irrigation/recommend → calls etCalculator + aiTranslator → returns explainable irrigation advice in MSA. GET /irrigation/logs/:farmId → returns history. Farmer-only (MAÏ module).
+- sila.js         → GET /sila/price-trend?crop=tomato&region=Souss → calls priceAnalyzer. GET /sila/sell-window → calls storageCountdown. Farmer-only (SILA module).
+- marketplace.js  → POST /listings (farmer creates listing), GET /listings (distributor browses), POST /offers (distributor makes offer). Both roles use this.
+- detection.js    → POST /detection/analyze (upload photo) → calls detectionService → returns diagnosis. POST /detection/confirm → triggers communityService alerts. Farmer-only.
+- community.js    → GET /community/alerts?lat=X&lng=Y → returns nearby community alerts within 15km radius. Both roles can read.
+
+BUILD ORDER: Phase 7 — build after middleware. Each route file imports its corresponding service.
+TEST: Start server (npm start) then use curl, Postman, or the React frontend to hit endpoints.

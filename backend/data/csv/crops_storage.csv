@@ -1,0 +1,56 @@
+﻿crop_name;storage_temp_c;relative_humidity_pct;max_moisture_pct;typical_duration_months;category
+Wheat;15;65;13.5;12;Cereals
+Rice (Paddy);17;70;14;6;Cereals
+Rice (Milled);15;65;12;3;Cereals
+Maize (White);15;65;13.5;6;Cereals
+Maize (Yellow);15;65;13;6;Cereals
+Barley;15;65;13.5;12;Cereals
+Sorghum;15;65;13.5;12;Cereals
+Millet;15;70;15;6;Cereals
+Oats;15;65;13;12;Cereals
+Beans (haricot/horse);15;65;15;6;Legumes
+Cowpeas;15;65;14;6;Legumes
+Lentils;15;65;14;12;Legumes
+Soybeans;15;65;11;12;Legumes
+Groundnuts (unshelled);15;65;9;6;Legumes
+Groundnuts (shelled);10;60;7;3;Legumes
+Cassava (fresh roots);25;85;65;0.25;Roots and Tubers
+Cassava (dried chips/flour);20;70;14;6;Roots and Tubers
+Potato;10;90;80;3;Roots and Tubers
+Sweet Potato;15;85;75;3;Roots and Tubers
+Yam;25;80;70;4;Roots and Tubers
+Onion (dry bulbs);20;65;10;6;Small Vegetables
+Garlic;20;65;10;6;Small Vegetables
+Carrots;0;95;90;6;Small Vegetables
+Cabbage;0;95;90;4;Small Vegetables
+Lettuce;0;95;92;0.5;Small Vegetables
+Spinach;0;95;90;0.5;Small Vegetables
+Broccoli;0;95;90;0.5;Small Vegetables
+Cauliflower;0;95;90;0.75;Small Vegetables
+Celery;0;95;90;2;Small Vegetables
+Radish;0;95;90;1;Small Vegetables
+Banana;13;90;85;0.5;Tropical Fruits
+Citrus (Orange);5;90;85;3;Tropical Fruits
+Pineapple;10;85;85;1;Tropical Fruits
+Mango;12;85;85;0.75;Tropical Fruits
+Papaya;10;90;88;0.5;Tropical Fruits
+Apple;0;95;85;6;Fruit Trees
+Grapes (Table);-1;95;80;2;Grapes and Berries
+Strawberries;0;95;90;0.25;Perennial Vegetables
+Sunflower (seed);15;65;10;12;Oil Crops
+Rapeseed / Canola;15;65;10;12;Oil Crops
+Cotton (seed);20;65;12;12;Fibre Crops
+Sugarcane (fresh);25;85;75;0.25;Sugar Cane
+Tomato;10;90;90;0.5;Solanaceae
+Olive Oil;15;50;0.5;18;Oil Crops
+Chickpeas;15;65;14;12;Legumes
+Sweet Peppers;10;90;90;0.75;Solanaceae
+Cucumber;10;90;90;0.5;Cucurbitaceae
+Watermelon;12;85;85;0.75;Cucurbitaceae
+Cantaloupe;5;90;85;0.5;Cucurbitaceae
+Pumpkin;12;70;80;2;Cucurbitaceae
+Zucchini;10;90;90;0.25;Cucurbitaceae
+Beets;0;95;90;4;Roots and Tubers
+Turnip;0;95;90;3;Roots and Tubers
+Eggplant;10;90;90;0.5;Solanaceae
+Avocado;5;85;85;0.5;Fruit Trees
